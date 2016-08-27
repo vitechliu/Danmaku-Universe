@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Canvas - test</title>
-    <link rel="stylesheet" href="assets/css/index.css">
 <style>
 *{margin: 0;padding: 0;}
 </style>
@@ -16,162 +15,86 @@
     
     
     
-<script type="text/javascript" src=""></script>
+<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="assets/js/camera.js"></script>
 <script>
 
-window.onload=main;
+function getRgb(r, g, b) {
+    return "rgb(" + r + "," + g + "," + b + ")";
+}
+var requestAnimFrame = (function() {
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+    function(callback, element) {
+        window.setTimeout(callback, 1000 / 60);
+    };
+})();
 
-function getRgb(r,g,b) {
-    return "rgb("+ r+","+g+","+b+")";
+var canvasEl = document.getElementById("canvas");
+var ctx = canvasEl.getContext('2d');
+var camera = new Camera(ctx);
+    
+var c_cam = {}; //Cam参数
+var c_mouse = {}; //鼠标参数
+var c_opt = {}; //全局参数
+var c_my = {}; //自机
+var c_stars = [];
+    
+var test = 20;
+
+c_opt.bgColor = '#000';
+c_opt.h = canvasEl.height = canvasEl.clientHeight;
+c_opt.w = canvasEl.width = canvasEl.clientWidth;
+
+c_cam.x = 0.5*c_opt.h;
+c_cam.y = 0.5*c_opt.w;
+    
+console.log(c_cam.x);
+console.log(c_cam.y);
+c_cam.z = 1000;
+    
+camera.moveTo(c_cam.x,c_cam.y);
+camera.zoomTo(c_cam.z);
+    
+window.onresize = function() { //侦听窗口变化
+    c_opt.h = canvasEl.height = canvasEl.clientHeight;
+    c_opt.w = canvasEl.width = canvasEl.clientWidth;
+}
+window.onmousemove = function(e) { //侦听鼠标
+    c_mouse.x = e.clientX;
+    c_mouse.y = e.clientY;
 }
 
-function main()
-{
-  var canvasEl = document.getElementById('canvas');
-  var ctx = canvasEl.getContext('2d');
-  var mouse = {x:0,y:0};
-  var backgroundColor = '#000';
- canvasEl.width=canvasEl.clientWidth;
- canvasEl.height=canvasEl.clientHeight;
- window.onresize=function () 
- {
-    canvasEl.width=canvasEl.clientWidth;
-    canvasEl.height=canvasEl.clientHeight;
- }
- window.onmousemove=function (e) 
- {
-   mouse.x=e.clientX;
-   mouse.y=e.clientY;
- }
+update();
+function move(mx, my) {
+    c_my.x += mx;
+    c_my.y += my;
+}
 
- function createLine(e)
-  {
-   var temp= 0.25*( 50+Math.random()*100);
-    var myline={
-      speed:5.5*(Math.random()*6+3),
-      die:false,
-      posx:e,
-      posy:-200,
-      h:temp,
-      color:getRgb(Math.floor(temp*255/75),Math.floor(temp*255/75),Math.floor(temp*255/75))
-    };
-    linelist.push(myline);
-  }
-  window.requestAnimationFrame(update);
-   function createDrop(x,y)
-  {
-    var mydrop={
-      die:false,
-      posx:x,
-      posy:y,
-      vx:(Math.random()-0.5)*8,
-      vy:Math.random()*(-6)-3,
-      radius:Math.random()*1.5+1
-    };
-   return mydrop;
-  }
-  
-  function madedrops(x,y)
-   {
-    var maxi=Math.floor(Math.random()*5+5);
-    for(var i=0;i<maxi;i++)
-    {
-      dropList.push(createDrop(x,y));
-    }
-  }
-  
-  function update() {
-    if(dropList.length>0)
-    {
-       dropList.forEach(function (e) {
-         e.vx=e.vx+(speedx)/2;
-         e.posx=e.posx+e.vx;
-         e.vy=e.vy+gravity;
-         e.posy=e.posy+e.vy;
-         if(e.posy>canvasEl.clientHeight)
-         {
-           e.die=true;
-         }
-       });
-    }
-    for(var i=dropList.length-1;i>=0;i--)
-    {
-      //delite die
-      if(dropList[i].die){
-        dropList.splice(i,1);
-      }
-    }
+function update() {
+    //camera.moveTo(c_cam.x,c_cam.y);
+    //camera.zoomTo(c_cam.z);
     
-    speedx=speedx+(maxspeedx-speedx)/50;
-  
-    if(Math.random()>0)
-    {
-    createLine(Math.random()*2*canvasEl.width-(0.5*canvasEl.width));
-    createLine(Math.random()*2*canvasEl.width-(0.5*canvasEl.width));
-    createLine(Math.random()*2*canvasEl.width-(0.5*canvasEl.width));
-    }
-    var mydeadline=canvasEl.clientHeight- Math.random()*canvasEl.clientHeight/5;
-     linelist.forEach(function (e) {
-       var dis=Math.sqrt( ((e.posx+speedx*e.h)-mousePos[0])*((e.posx+speedx*e.h)-mousePos[0])+(e.posy+e.h-mousePos[1])*(e.posy+e.h-mousePos[1]));
-       if(dis<35)
-       {
-         madedrops(e.posx+speedx*e.h,e.posy+e.h);
-         e.die=true;
-       }
-        
-       if((e.posy+e.h)>mydeadline)
-       {
-         if(Math.random()>0.85)
-         {
-           madedrops(e.posx+speedx*e.h,e.posy+e.h);
-           e.die=true;
-         }
-       }
-       if(e.posy>=canvasEl.clientHeight)
-       {
-         e.die=true;
-       }else{
-         e.posy=e.posy+e.speed;
-         e.posx=e.posx+(e.speed*speedx);
-       }
-     });
-       for(var i=linelist.length-1;i>=0;i--)
-    {
-      if(linelist[i].die){
-        linelist.splice(i,1);
-      }
-    }
-     render();
-     window.requestAnimationFrame(update);
-  }
-  function  render() {
-    ctx.fillStyle = backgroundColor;
+    render();
+    window.requestAnimFrame(update);
+}
+
+function render() {
+    camera.begin();
+    //camera.moveTo(0.5*c_opt.h,0.5*c_opt.y); 
+    ctx.fillStyle = c_opt.bgColor;
     ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
-
-     linelist.forEach(
-      function (line) {
-   
-        ctx.strokeStyle =line.color;
-        ctx.lineWidth=4.5;
-        ctx.beginPath();
-        ctx.moveTo(line.posx,line.posy);
-        ctx.lineTo(line.posx+speedx*line.h,line.posy+line.h);
-        ctx.stroke();
-      });
-       ctx.lineWidth=1;
-          ctx.strokeStyle = "#fff";
-          dropList.forEach(function (e) {
-           ctx.beginPath();
-           ctx.arc(e.posx,e.posy,e.radius,Math.random()*Math.PI*2,1*Math.PI);
-           ctx.stroke();
-       });
-}
-  
-  
-}
-
-
+    
+    c_cam.x+=0.1;
+    //test+=0.1;
     
     
+    ctx.fillStyle = "#0000ff";
+    ctx.fillRect(20, 20, 150, 100);
+    camera.end();
+}
+
+//End Main
+
+
     </script>
 </body>
