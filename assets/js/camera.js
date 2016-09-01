@@ -15,27 +15,39 @@ var Camera = function(aCanvas, aContext, x, y) {
 	
 	var backgroundColor = Math.random()*360;
 	
+    //app.draw事件中调用,先setupContext再startUIlayer
+    
 	this.setupContext = function() {
+        //
 		var translateX = canvas.width / 2 - camera.x * camera.zoom;
 		var translateY = canvas.height / 2 - camera.y * camera.zoom;
 		
-		// Reset transform matrix
+		//将transfrom归为正常以绘制填充
 		context.setTransform(1,0,0,1,0,0);
+        
+        //过渡上色
 		context.fillStyle = 'hsl('+backgroundColor+',50%,10%)';
 		context.fillRect(0,0,canvas.width, canvas.height);
 		
+        //translate() 方法重新映射画布上的 (0,0) 位置。
+        //scale() 方法缩放当前绘图，更大或更小。基于1.
 		context.translate(translateX, translateY);
 		context.scale(camera.zoom, camera.zoom);
 		
+        //调试
 		if(debug) {
 			drawDebug();
 		}
 	};
 	
 	this.update = function(model) {
+        
+        //背景色调渐变
 		backgroundColor += 0.08;
 		backgroundColor = backgroundColor > 360 ? 0 : backgroundColor;
 		
+        
+        //下面的部分待看懂
 		var targetZoom = (model.camera.maxZoom + (model.camera.minZoom - model.camera.maxZoom) * Math.min(model.userTadpole.momentum, model.userTadpole.maxMomentum) / model.userTadpole.maxMomentum);
 		model.camera.zoom += (targetZoom - model.camera.zoom) / 60;
 		
@@ -48,15 +60,15 @@ var Camera = function(aCanvas, aContext, x, y) {
 			model.camera.x += delta.x;
 			model.camera.y += delta.y;
 			
-			for(var i = 0, len = model.waterParticles.length; i < len; i++) {
-				var wp = model.waterParticles[i];
+			for(var i = 0, len = model.decoStars.length; i < len; i++) {
+				var wp = model.decoStars[i];
 				wp.x -= (wp.z - 1) * delta.x;
 				wp.y -= (wp.z - 1) * delta.y;
 			}
 		}
 	};
 	
-	// Gets bounds of current zoom level of current position
+	// 返回当前缩放水平的边界 Gets bounds of current zoom level of current position
 	this.getBounds = function() {
 		return [
 			{x: camera.x - canvas.width / 2 / camera.zoom, y: camera.y - canvas.height / 2 / camera.zoom},
@@ -80,10 +92,12 @@ var Camera = function(aCanvas, aContext, x, y) {
 		];
 	};
 	
+    //将transfrom归为正常以绘制UI
 	this.startUILayer = function() {
 		context.setTransform(1,0,0,1,0,0);
 	}
 	
+    //debug
 	var debugBounds = function(bounds, text) {
 		context.strokeStyle   = '#fff';
 		context.beginPath();
