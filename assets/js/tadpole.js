@@ -6,7 +6,12 @@ var Tadpole = function() {
 	this.y = Math.random() * 300 - 150;
     
     //圆的半径
-	this.size = 4;
+	this.size = 6;
+    
+    //新增-三角
+    this.headSize = 2;
+    this.headAngle = Math.PI * 0.14;
+    this.headDistance = 1.5;
 	
 	this.name = '';
 	this.age = 0;
@@ -28,7 +33,7 @@ var Tadpole = function() {
 	this.messages = [];
     
     //不活动时间
-	this.timeSinceLastActivity = 0;
+	//this.timeSinceLastActivity = 0;
 	
 	this.changed = 0;
     
@@ -123,6 +128,7 @@ var Tadpole = function() {
 		if(tadpole.momentum < 0) {
 			tadpole.momentum = 0;
 		}
+        
 		
         //changed加上改变角度的3倍加上主机的动量
         //这里以转向来判断主机是否还在更新
@@ -133,6 +139,7 @@ var Tadpole = function() {
 		if(tadpole.changed > 1) {
 			this.timeSinceLastServerUpdate = 0;
 		}
+        
 	};
 	
 	this.draw = function(context) {
@@ -168,14 +175,32 @@ var Tadpole = function() {
 		
 		//画圆
 		context.beginPath();
-		context.arc(tadpole.x, tadpole.y, tadpole.size, tadpole.angle + Math.PI * 2.7, tadpole.angle + Math.PI * 1.3, true); 
+        context.arc(tadpole.x, tadpole.y, tadpole.size, 0, Math.PI * 2, true); 
+		//context.arc(tadpole.x, tadpole.y, tadpole.size, tadpole.angle + Math.PI * 2.7, tadpole.angle + Math.PI * 1.3, true); 
 		
+        
         //画尾巴
 		//tadpole.tail.draw(context);
 		
 		context.closePath();
 		context.fill();
 		
+        //画三角头
+        context.beginPath();
+        
+        context.moveTo(tadpole.x+(tadpole.size+this.headDistance+this.headSize)*Math.cos(tadpole.angle),tadpole.y+(tadpole.size+this.headDistance+this.headSize)*Math.sin(tadpole.angle));
+		context.lineTo(tadpole.x+(tadpole.size+this.headDistance)*Math.cos(tadpole.angle-this.headAngle),tadpole.y+(tadpole.size+this.headDistance)*Math.sin(tadpole.angle-this.headAngle));
+        context.lineTo(tadpole.x+(tadpole.size+this.headDistance)*Math.cos(tadpole.angle+this.headAngle),tadpole.y+(tadpole.size+this.headDistance)*Math.sin(tadpole.angle+this.headAngle));
+        
+        context.closePath();
+        context.fill();
+        
+        //画尾巴
+		//tadpole.tail.draw(context);
+		
+		context.closePath();
+		context.fill();
+        
 		context.shadowBlur = 0;
 		context.shadowColor   = '';
 		
