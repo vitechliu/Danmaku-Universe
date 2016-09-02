@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Canvas - test</title>
     <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="assets/css/jquery.fileupload.css">
+    
 <style>
 *{margin: 0;padding: 0;}
 </style>
@@ -11,61 +13,59 @@
 </head>
 <body>
 
-<canvas id="canvas" style="position: absolute; height: 100%; width:100%;"></canvas>
-<div id="ui">
-			<div id="fps"></div>
-		
-			<input id="chat" type="text" />
-			<div id="chatText"></div>
-					<div id="instructions">
-				<span class="btn btn-success fileinput-button">
-				<i class="glyphicon glyphicon-plus"></i>
-					<span><img src="/images/upload_icon.png" id="icon"></span>
-					<input id="fileupload" type="file" name="files[]" multiple>
-				</span>
-				<br>
-				昵称：<input type="text" id="nick" class="input"><br>
-				我是：<b style="color:rgb(192, 253, 247)">男生</b>&nbsp;<input type="radio"  id="sex1" name="sex">&nbsp;&nbsp;<b style="color:rgb(255, 181, 197)">女生</b>&nbsp;<input type="radio"  id="sex0" name="sex">
-			</div>  
-    
-<aside id="info">
-			<section id="share">
-<br><br><br><br><br><br><br>
+  <canvas id="canvas"></canvas> 
+  <div id="ui"> 
+   <div id="fps"></div> 
+   <input id="chat" type="text" /> 
+   <div id="chatText"></div> 
+   <div id="instructions"> 
+    <span class="btn btn-success fileinput-button"> <i class="glyphicon glyphicon-plus"></i> <span><img src="assets/img/upload_icon.png" id="icon" /></span> <input id="fileupload" type="file" name="files[]" multiple="" /> </span> 
+    <br /> 昵称：
+    <input type="text" id="nick" class="input" />
+    <br /> 我是：
+    <b style="color:rgb(192, 253, 247)">男生</b>&nbsp;
+    <input type="radio" id="sex1" name="sex" />&nbsp;&nbsp;
+    <b style="color:rgb(255, 181, 197)">女生</b>&nbsp;
+    <input type="radio" id="sex0" name="sex" /> 
+   </div> 
+   <aside id="info"> 
+    <section id="share"> 
+     <br />
+     <br />
+     <br />
+     <br />
+     <br />
+     <br />
+     <br /> 
+    </section> 
+   </aside> 
+   <aside id="frogMode"> 
+    <h3>Frog Mode</h3> 
+    <section id="tadpoles"> 
+     <h4>Tadpoles</h4> 
+     <ul id="tadpoleList"> 
+     </ul> 
+    </section> 
+    <section id="console"> 
+     <h4>Console</h4> 
+    </section> 
+   </aside> 
+   <div id="unsupported-browser"> 
+    <p> 您的浏览器不支持 <a rel="external" href="http://en.wikipedia.org/wiki/WebSocket">WebSockets</a>. 推荐您使用以下浏览器 </p> 
+    <ul> 
+     <li><a rel="external" href="http://www.google.com/chrome">Google Chrome</a></li> 
+     <li><a rel="external" href="http://apple.com/safari">Safari 4</a></li> 
+     <li><a rel="external" href="http://www.mozilla.com/firefox/">Firefox 4</a></li> 
+     <li><a rel="external" href="http://www.opera.com/">Opera 11</a></li> 
+    </ul> 
+    <p> <a href="#" id="force-init-button">仍然浏览!</a> </p>   
+   </div> 
+  </div>
 
-
-			</section>
-
-			</aside>
-			            <aside id="frogMode">
-                <h3>Frog Mode</h3>
-                <section id="tadpoles">
-                    <h4>Tadpoles</h4>
-                    <ul id="tadpoleList">
-                    </ul>
-                </section>
-                <section id="console">
-                    <h4>Console</h4>
-                </section>
-            </aside>
-                
-                
-<div id="unsupported-browser">
-				<p>
-					您的浏览器不支持 <a rel="external" href="http://en.wikipedia.org/wiki/WebSocket">WebSockets</a>.
-					推荐您使用以下浏览器
-				</p>
-				<ul>										
-					<li><a rel="external" href="http://www.google.com/chrome">Google Chrome</a></li>
-					<li><a rel="external" href="http://apple.com/safari">Safari 4</a></li>
-					<li><a rel="external" href="http://www.mozilla.com/firefox/">Firefox 4</a></li>
-					<li><a rel="external" href="http:/d/www.opera.com/">Opera 11</a></li>
-				</ul>
-				<p>
-					<a href="#" id="force-init-button">仍然浏览!</a>
-				</p>
-			</div>
-    
 <script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/lib/jquery.ui.widget.js"></script>
+<script src="assets/js/lib/jquery.iframe-transport.js"></script>
+<script src="assets/js/lib/jquery.fileupload.js"></script>
     
 <script src="assets/js/lib/parseUri.js"></script> 
 <script src="assets/js/lib/modernizr-1.5.min.js"></script>
@@ -78,7 +78,15 @@
 -->
 
 <script src="assets/js/keys.js"></script>
+<script>
+    $(function() {
+        $('#chat').initChat();
+    });
+    
+</script>
+<!--
 <script src="assets/js/webSocketService.js"></script>
+-->
 <script src="assets/js/camera.js"></script>
 		
 <script src="assets/js/tadpole.js"></script>
@@ -99,3 +107,5 @@
  
 </script>
 </body>
+
+</html>

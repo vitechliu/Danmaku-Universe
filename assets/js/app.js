@@ -70,7 +70,8 @@ var App = function(aSettings, aCanvas) {
 
     //全局绘制
     app.draw = function() {
-
+        
+        //开始画全局物体
         model.camera.setupContext();
 
         //绘制水粒子
