@@ -44,13 +44,10 @@ a {
 	color: #c0fdf7;
 	text-decoration: none;
 }
-
-
-
-	a:hover {
-		color: #fff;
-		text-decoration: underline;
-	}
+a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
 
 p {
 	color: #999999;
@@ -74,17 +71,17 @@ strong {
 }
 
 #chatText
-{
+{   
 	display:inline-block;	
 }
 #chatText,#chat
-{
+{   
+    font-family: "Microsoft YaHei","Microsoft Yahei","微软雅黑",微软雅黑,"SimHei","黑体",黑体, sans-serif;
 	font-size:3em;
 	font-weight: bold;
 	max-width: 70%;
 }
 #chat {
-	/*font-family: "Arial Rounded MT Bold";*/
 	display: block;
 	position: absolute;
 	top: 60%;
@@ -183,45 +180,6 @@ a#force-init-button:hover {
 }
 
 
-
-#info {
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-}
-	#info section {
-		float: left;
-		margin: 20px 40px 20px 20px;
-		margin-right: 40px;
-	}
-	#info #wtf {
-		float: left;
-		margin-left: 30px;
-		margin-right: 40px;
-	}
-	
-	#info #share {
-		float: right;
-		margin-right: 40px;
-	}
-	
-	#info section ul {
-	
-	}
-	#info section ul li {
-		float: left;
-		margin-right: 10px;
-	}
-	#info section ul li a {
-		font-size: 1.3em;
-	}
-
-	#info #settings .edit {
-		display: none;
-	}
-	
-
 #instructions {
 	position: absolute;
 	top: 30px;
@@ -240,12 +198,5 @@ a#force-init-button:hover {
 	-moz-box-shadow: 1px 1px 8px #ccc;
 	-webkit-box-shadow: 1px 1px 8px #ccc;
     box-shadow: 1px 1px 8px #ccc;
-}
-
-#fwa {
-	display: none; /*remove on 27th November 2010*/
-	position: absolute;
-	top: 0px;
-	right: 0px;
 }
 

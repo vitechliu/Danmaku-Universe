@@ -7,8 +7,7 @@ var Settings = function() {
 var App = function(aSettings, aCanvas) {
     var app = this;
 
-    var model, canvas, context, webSocket,
-    webSocketService, mouse = {
+    var model, canvas, context, messageHandler, mouse = {
         x: 0,
         y: 0,
         worldx: 0,
@@ -20,11 +19,12 @@ var App = function(aSettings, aCanvas) {
         x: 0,
         y: 0
     },
-    //????
-    messageQuota = 5 //????
+    
+    messageQuota = 5 //消息限制数量(最高5个，每50帧回复1个)
     ;
 
     app.update = function() {
+        //每隔50帧能发个消息
         if (messageQuota < 5 && model.userTadpole.age % 50 == 0) {
             messageQuota++;
         }
@@ -116,20 +116,21 @@ var App = function(aSettings, aCanvas) {
             webSocketService.processMessage(data);
         } catch(e) {}
     };
-
-    app.sendMessage = function(msg) {
-
-        if (messageQuota > 0) {
-            messageQuota--;
-            webSocketService.sendMessage(msg);
-        }
-
-    }
-
     app.authorize = function(token, verifier) {
         webSocketService.authorize(token, verifier);
     }
 */
+    app.sendMessage = function(msg) {
+
+        if (messageQuota > 0) {
+            messageQuota--;
+            messageHandler.handleMessage(msg);
+        }
+
+    }
+
+    
+
     //单击
     app.mousedown = function(e) {
         mouse.clicking = true; //在点击状态 待弄懂
@@ -281,6 +282,9 @@ var App = function(aSettings, aCanvas) {
         model.camera = new Camera(canvas, context, model.userTadpole.x, model.userTadpole.y);
         
         model.arrows = {};
+        
+        //消息处理
+        messageHandler = new MessageHandler(model);
         
         /*
         //websocket部分

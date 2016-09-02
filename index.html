@@ -15,10 +15,11 @@
 
   <canvas id="canvas"></canvas> 
   <div id="ui"> 
-   <div id="fps"></div> 
-   <input id="chat" type="text" /> 
-   <div id="chatText"></div> 
-   <div id="instructions"> 
+   <div id="fps"></div> <!-- FPS显示 -->
+   <input id="chat" type="text" />  <!-- 输入Input -->
+   <div id="chatText"></div> <!-- 输入文字显示框 -->
+      
+   <div id="instructions"> <!-- 待删除 -->
     <span class="btn btn-success fileinput-button"> <i class="glyphicon glyphicon-plus"></i> <span><img src="assets/img/upload_icon.png" id="icon" /></span> <input id="fileupload" type="file" name="files[]" multiple="" /> </span> 
     <br /> 昵称：
     <input type="text" id="nick" class="input" />
@@ -28,35 +29,16 @@
     <b style="color:rgb(255, 181, 197)">女生</b>&nbsp;
     <input type="radio" id="sex0" name="sex" /> 
    </div> 
-   <aside id="info"> 
-    <section id="share"> 
-     <br />
-     <br />
-     <br />
-     <br />
-     <br />
-     <br />
-     <br /> 
-    </section> 
-   </aside> 
-   <aside id="frogMode"> 
-    <h3>Frog Mode</h3> 
-    <section id="tadpoles"> 
-     <h4>Tadpoles</h4> 
-     <ul id="tadpoleList"> 
-     </ul> 
-    </section> 
-    <section id="console"> 
-     <h4>Console</h4> 
-    </section> 
-   </aside> 
+      
+
+   <!-- 浏览器支持 -->
    <div id="unsupported-browser"> 
     <p> 您的浏览器不支持 <a rel="external" href="http://en.wikipedia.org/wiki/WebSocket">WebSockets</a>. 推荐您使用以下浏览器 </p> 
     <ul> 
-     <li><a rel="external" href="http://www.google.com/chrome">Google Chrome</a></li> 
-     <li><a rel="external" href="http://apple.com/safari">Safari 4</a></li> 
-     <li><a rel="external" href="http://www.mozilla.com/firefox/">Firefox 4</a></li> 
-     <li><a rel="external" href="http://www.opera.com/">Opera 11</a></li> 
+     <li><a rel="external" href="http://browsehappy.com/">Google Chrome 51+</a></li> 
+     <li><a rel="external" href="http://browsehappy.com/">Safari 7+</a></li> 
+     <li><a rel="external" href="http://browsehappy.com/">Firefox 47+</a></li> 
+     <li><a rel="external" href="http://browsehappy.com/">Opera 38+</a></li> 
     </ul> 
     <p> <a href="#" id="force-init-button">仍然浏览!</a> </p>   
    </div> 
@@ -87,6 +69,7 @@
 <!--
 <script src="assets/js/webSocketService.js"></script>
 -->
+<script src="assets/js/messageHandler.js"></script>
 <script src="assets/js/camera.js"></script>
 		
 <script src="assets/js/tadpole.js"></script>

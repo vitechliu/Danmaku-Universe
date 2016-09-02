@@ -1,14 +1,17 @@
 // Settings controls
 
 (function($){
-	
+	//初始化Chat系统
 	$.fn.initChat = function() {
-		var input = $(this);
-		var chatText = $("#chatText");
+		var input = $(this); //input本身
+		var chatText = $("#chatText");  //div$chatText
 		var hidden = true;
+        
+        //历史消息
 		var messageHistory = [];
 		var messagePointer = -1;
-
+        
+        //关闭聊天框
 		var closechat = function() {
 			hidden = true;
 			input.css("opacity","0");
@@ -16,7 +19,8 @@
 			input.val('');
 			chatText.text('')
 		}
-
+        
+        //更新框宽度
 		var updateDimensions = function(){
 			chatText.text(input.val());
 			var width = chatText.width() + 30;
@@ -41,6 +45,8 @@
 			if(!hidden) {
 		
 				e.stopPropagation();
+                
+                //方向键来输入上一条或下一条消息 !!
 				if(messageHistory.length > 0) {
 					if(e.keyCode == keys.up)
 					{
