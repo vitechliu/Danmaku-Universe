@@ -30,18 +30,25 @@ var App = function(aSettings, aCanvas) {
         }
 
         // 更新主机位置
-        if (keyNav.x != 0 || keyNav.y != 0) {
+        var mvp = getMouseWorldPosition();
+        mouse.worldx = mvp.x;
+        mouse.worldy = mvp.y;
+        model.userTadpole.userUpdate(model.tadpoles, mouse.worldx, mouse.worldy);
+        
+        /*
+        if (keyNav.x != 0 || keyNav.y != 0) { //如果键盘有操作
+            //键盘
             model.userTadpole.userUpdate(model.tadpoles, model.userTadpole.x + keyNav.x, model.userTadpole.y + keyNav.y);
         } else {
-
+            //鼠标
             var mvp = getMouseWorldPosition();
             mouse.worldx = mvp.x;
             mouse.worldy = mvp.y;
             model.userTadpole.userUpdate(model.tadpoles, mouse.worldx, mouse.worldy);
         }
-
+        */
+        
         //待弄懂
-        //if (model.userTadpole.age % 6 == 0 && model.userTadpole.changed > 1 && webSocketService.hasConnection) {
         if (model.userTadpole.age % 6 == 0 && model.userTadpole.changed > 1) {
             model.userTadpole.changed = 0;
             //webSocketService.sendUpdate(model.userTadpole);
@@ -92,6 +99,16 @@ var App = function(aSettings, aCanvas) {
         for (i in model.arrows) {
             model.arrows[i].draw(context, canvas);
         }
+        
+        context.fillStyle = "#FFFFFF";
+		context.fillText("keyNavX:"+model.userTadpole.keyNavX, 10,100);
+        context.fillText("keyNavY:"+model.userTadpole.keyNavY, 10,115);
+        context.fillText("SpeedX:"+model.userTadpole.speedX, 10,130);
+        context.fillText("SpeedY:"+model.userTadpole.speedY, 10,145);
+        context.fillText("accX:"+model.userTadpole.aX, 10,160);
+        context.fillText("accY:"+model.userTadpole.aY, 10,175);
+        context.fillText("SpeedAngle:"+model.userTadpole.speedAngle, 10,190);
+        context.fillText("a:"+(model.userTadpole.a),10,220);
     };
     
 /*
@@ -140,7 +157,7 @@ var App = function(aSettings, aCanvas) {
         }
         if (model.userTadpole && e.which == 1) {
             //如果存在己方蝌蚪 同时是左键，就加上动量
-            model.userTadpole.momentum = model.userTadpole.targetMomentum = model.userTadpole.maxMomentum;
+            //鼠标左键点击(弹幕)
         }
 
     };
@@ -148,7 +165,7 @@ var App = function(aSettings, aCanvas) {
     //如果是松开左键,设动量为0
     app.mouseup = function(e) {
         if (model.userTadpole && e.which == 1) {
-            model.userTadpole.targetMomentum = 0;
+        //鼠标左键松开
         }
     };
 
@@ -162,20 +179,27 @@ var App = function(aSettings, aCanvas) {
     app.keydown = function(e) {
         //keyNav为动量方向
         if (e.keyCode == keys.up) {
-            keyNav.y = -1;
-            model.userTadpole.momentum = model.userTadpole.targetMomentum = model.userTadpole.maxMomentum;
+            //console.log("up");
+            model.userTadpole.keyNavY = -1;
+            model.userTadpole.isAccing = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.down) {
-            keyNav.y = 1;
-            model.userTadpole.momentum = model.userTadpole.targetMomentum = model.userTadpole.maxMomentum;
+            //console.log("down");
+            model.userTadpole.keyNavY = 1;
+            model.userTadpole.isAccing = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.left) {
-            keyNav.x = -1;
-            model.userTadpole.momentum = model.userTadpole.targetMomentum = model.userTadpole.maxMomentum;
+            //console.log("left");
+            model.userTadpole.keyNavX = -1;
+            model.userTadpole.isAccing = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.right) {
-            keyNav.x = 1;
-            model.userTadpole.momentum = model.userTadpole.targetMomentum = model.userTadpole.maxMomentum;
+            //console.log("right");
+            model.userTadpole.keyNavX = 1;
+            model.userTadpole.isAccing = 1;
+            e.preventDefault();
+        } else if (e.keyCode == keys.enter) {
+            $("#chat").focus();
             e.preventDefault();
         }
     };
@@ -183,20 +207,23 @@ var App = function(aSettings, aCanvas) {
     //松开按键
     app.keyup = function(e) {
         if (e.keyCode == keys.up || e.keyCode == keys.down) {
-            keyNav.y = 0;
-            if (keyNav.x == 0 && keyNav.y == 0) {
-                model.userTadpole.targetMomentum = 0;
+            model.userTadpole.keyNavY = 0;
+            if (model.userTadpole.keyNavX == 0 && model.userTadpole.keyNavY == 0) {
+                model.userTadpole.isAccing = 0;
             }
+            model.userTadpole.updateKeyNav();
             e.preventDefault();
         } else if (e.keyCode == keys.left || e.keyCode == keys.right) {
-            keyNav.x = 0;
-            if (keyNav.x == 0 && keyNav.y == 0) {
-                model.userTadpole.targetMomentum = 0;
+            model.userTadpole.keyNavX = 0;
+            if (model.userTadpole.keyNavX == 0 && model.userTadpole.keyNavY == 0) {
+                model.userTadpole.isAccing = 0;
             }
+            model.userTadpole.updateKeyNav();
             e.preventDefault();
         }
     };
     
+    /*
     //手机端触摸检测
     app.touchstart = function(e) {
         e.preventDefault();
@@ -225,7 +252,9 @@ var App = function(aSettings, aCanvas) {
             mouse.y = touch.clientY;
         }
     }
-
+    
+    */
+    
     //浏览器窗口变化
     app.resize = function(e) {
         resizeCanvas();

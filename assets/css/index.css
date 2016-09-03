@@ -70,37 +70,55 @@ strong {
 	z-index:2;
 }
 
+#chatBox {
+    display:blck;
+    position:absolute;
+    bottom:0;
+    
+}
+
 #chatText
 {   
 	display:inline-block;	
-}
-#chatText,#chat
-{   
     font-family: "Microsoft YaHei","Microsoft Yahei","微软雅黑",微软雅黑,"SimHei","黑体",黑体, sans-serif;
 	font-size:3em;
 	font-weight: bold;
 	max-width: 70%;
 }
-#chat {
-	display: block;
-	position: absolute;
-	top: 60%;
-	left: 50%;
-	padding: 10px 20px;
-	background: rgba(255,255,255,.1);
-	border-radius: 20px;
-	color: #fff;
-	text-align: center;
-	border-style:none;
-	outline-style:none;
-	height:30px;
-	opacity:0;
-	transition: opacity .2s linear;
-	-o-transition: opacity .2s linear;
-	-moz-transition: opacity .2s linear;
-	-webkit-transition: opacity .2s linear;
-	-ms-transition: opacity .2s linear;
-}
+#chatBox {
+        display:block;
+        position:absolute;
+        bottom:0;
+        left:0;
+        margin:0;
+        padding:5px;
+        height:350px;
+        width:500px;
+        background-color:rgba(0,0,0,.7);
+    }
+    #infoBox {
+        height:320px;
+        width:100%;
+        margin:0;
+        padding:0;
+        background-color:rgba(0,0,0,.7);
+    }
+    #chat {   
+        font-family: "Microsoft YaHei","Microsoft Yahei","微软雅黑",微软雅黑,"SimHei","黑体",黑体, sans-serif;
+        font-size:1.2em;
+        font-weight: bold;
+        background: rgba(0,0,0,.2);
+        color: #eee;
+        border-top:1px solid rgba(100,100,100,.5);
+        border-style:none;
+	    outline-style:none;
+        width:490px;
+        transition: opacity .2s linear;
+        -o-transition: opacity .2s linear;
+        -moz-transition: opacity .2s linear;
+        -webkit-transition: opacity .2s linear;
+        -ms-transition: opacity .2s linear;
+    }
 
 
 #cant-connect {

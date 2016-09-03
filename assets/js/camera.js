@@ -48,7 +48,7 @@ var Camera = function(aCanvas, aContext, x, y) {
 		
         
         //下面的部分待看懂
-		var targetZoom = (model.camera.maxZoom + (model.camera.minZoom - model.camera.maxZoom) * Math.min(model.userTadpole.momentum, model.userTadpole.maxMomentum) / model.userTadpole.maxMomentum);
+		var targetZoom = (model.camera.maxZoom + (model.camera.minZoom - model.camera.maxZoom) * Math.min(model.userTadpole.speed, model.userTadpole.speedMax) / model.userTadpole.speedMax);
 		model.camera.zoom += (targetZoom - model.camera.zoom) / 60;
 		
 		var delta = {
@@ -98,7 +98,7 @@ var Camera = function(aCanvas, aContext, x, y) {
 	}
 	
     //debug
-	var debugBounds = function(bounds, text) {
+	var debugBounds = function(bounds) {
 		context.strokeStyle   = '#fff';
 		context.beginPath();
 		context.moveTo(bounds[0].x, bounds[0].y);
@@ -107,12 +107,17 @@ var Camera = function(aCanvas, aContext, x, y) {
 		context.lineTo(bounds[1].x, bounds[0].y);
 		context.closePath();
 		context.stroke();
-		context.fillText(text, bounds[0].x + 10, bounds[0].y + 10);
+        
 	};
+    
+    var debugThings = function(bounds) {
+        context.fillStyle = "#FFFFFF";
+		context.fillText("", bounds[0].x + 10, bounds[0].y + 40);
+    }
 	
 	var drawDebug = function() {
-		debugBounds(camera.getInnerBounds(), 'Maximum zoom camera bounds');
-		debugBounds(camera.getOuterBounds(), 'Minimum zoom camera bounds');
-		debugBounds(camera.getBounds(), 'Current zoom camera bounds');
+		debugBounds(camera.getInnerBounds());
+		debugBounds(camera.getBounds());
+        //debugThings(camera.getBounds());
 	};
 };

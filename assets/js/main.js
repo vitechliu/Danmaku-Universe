@@ -33,11 +33,13 @@ var initApp = function() {
 	document.addEventListener('mousedown', 		app.mousedown, false);
 	document.addEventListener('mouseup',			app.mouseup, false);
 	
+    /*
 	document.addEventListener('touchstart',   app.touchstart, false);
 	document.addEventListener('touchend',     app.touchend, false);
 	document.addEventListener('touchcancel',  app.touchend, false);
 	document.addEventListener('touchmove',    app.touchmove, false);	
-
+    */
+    
 	document.addEventListener('keydown',    app.keydown, false);
 	document.addEventListener('keyup',    app.keyup, false);
     
@@ -98,7 +100,7 @@ document.body.onselectstart = function() { return false; }
 $(document).ready(function(){
     
     //输入昵称
-    
+    /*
 	$('#nick').blur(function(){
 		app.sendMessage('name:'+$('#nick').val());
 		$('#chat').focus();
@@ -109,4 +111,5 @@ $(document).ready(function(){
 	$('#sex1').click(function(){
 		app.setsex(1);
 	});
+    */
 });

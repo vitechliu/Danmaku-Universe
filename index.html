@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="assets/css/jquery.fileupload.css">
     
 <style>
-*{margin: 0;padding: 0;}
+
 </style>
 
 </head>
@@ -16,10 +16,14 @@
   <canvas id="canvas"></canvas> 
   <div id="ui"> 
    <div id="fps"></div> <!-- FPS显示 -->
-   <input id="chat" type="text" />  <!-- 输入Input -->
-   <div id="chatText"></div> <!-- 输入文字显示框 -->
+   <div id="chatBox">
+    <div id="infoBox"></div>
+    <input id="chat" type="text" />  <!-- 输入Input -->
+    
+   </div>
       
-   <div id="instructions"> <!-- 待删除 -->
+
+   <div id="instructions">  
     <span class="btn btn-success fileinput-button"> <i class="glyphicon glyphicon-plus"></i> <span><img src="assets/img/upload_icon.png" id="icon" /></span> <input id="fileupload" type="file" name="files[]" multiple="" /> </span> 
     <br /> 昵称：
     <input type="text" id="nick" class="input" />
@@ -28,8 +32,10 @@
     <input type="radio" id="sex1" name="sex" />&nbsp;&nbsp;
     <b style="color:rgb(255, 181, 197)">女生</b>&nbsp;
     <input type="radio" id="sex0" name="sex" /> 
+    
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="http://music.163.com/outchain/player?type=2&id=29797443&auto=1&height=66"></iframe>
    </div> 
-      
+
 
    <!-- 浏览器支持 -->
    <div id="unsupported-browser"> 
@@ -45,9 +51,13 @@
   </div>
 
 <script src="assets/js/jquery.min.js"></script>
+    
+<!--
 <script src="assets/js/lib/jquery.ui.widget.js"></script>
 <script src="assets/js/lib/jquery.iframe-transport.js"></script>
 <script src="assets/js/lib/jquery.fileupload.js"></script>
+
+-->
     
 <script src="assets/js/lib/parseUri.js"></script> 
 <script src="assets/js/lib/modernizr-1.5.min.js"></script>

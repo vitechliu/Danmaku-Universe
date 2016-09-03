@@ -3,48 +3,34 @@
 (function($){
 	//初始化Chat系统
 	$.fn.initChat = function() {
-		var input = $(this); //input本身
-		var chatText = $("#chatText");  //div$chatText
-		var hidden = true;
+		var input = $(this); //input#chat本身
+		var inputting = false;
+        var that = this;
         
+        input.focus(function(e) {
+            inputting = true;
+        });
+        
+        input.blur(function(e) {
+            inputting = false;
+        });
         //历史消息
 		var messageHistory = [];
 		var messagePointer = -1;
         
         //关闭聊天框
 		var closechat = function() {
-			hidden = true;
-			input.css("opacity","0");
+			inputting = false;
+			input.blur();
 			messagePointer = messageHistory.length;
 			input.val('');
-			chatText.text('')
 		}
-        
-        //更新框宽度
-		var updateDimensions = function(){
-			chatText.text(input.val());
-			var width = chatText.width() + 30;
-			input.css({
-				width: width,
-				marginLeft: (width/2)*-1
-			});
-		};
 
-		input.blur(function(e) {
-			setTimeout(function(){if(document.activeElement.id == 'nick')return;input.focus()}, 0.1);
-		});
 		input.keydown(function(e){
-			if(input.val().length > 0) {
-				//set timeout because event occurs before text is entered
-				setTimeout(updateDimensions,0.1);
-				input.css("opacity","1");		
-			} else {
-				closechat();
-			}
-			
-			if(!hidden) {
+            
+			if(inputting) {
 		
-				e.stopPropagation();
+				e.stopPropagation(); //防止app.keyDown再次监听
                 
                 //方向键来输入上一条或下一条消息 !!
 				if(messageHistory.length > 0) {
@@ -80,30 +66,22 @@
 				input.val(input.val().substr(0,45));
 			}
 
-			if(input.val().length > 0) {
-				updateDimensions();
-				input.css("opacity","1");
-				hidden = false;
-			} else {
-				closechat();
-			}
-			if(!hidden) {
-				if(k == keys.esc || k == keys.enter || (k == keys.space && input.val().length > 35)) {
-					if(k != keys.esc && input.val().length > 0) {
-					    	messageHistory.push(input.val());
-			    			messagePointer = messageHistory.length;
-						app.sendMessage(input.val());
-					}
-					closechat();
-				}
-				
+			if(inputting) {
+                if(k == keys.enter) {
+                    if(input.val().length > 0) {
+                        messageHistory.push(input.val());
+			    	    messagePointer = messageHistory.length;
+                        app.sendMessage(input.val());
+                        input.val("");
+                        input.focus();
+                    } else closechat();
+                } else if (k == keys.esc) {
+                    closechat();
+                }
 				e.stopPropagation();
-
 			}
 			
 		});
-		
-		input.focus();
 	}
 	
 	$(function() {
