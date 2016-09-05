@@ -4,7 +4,7 @@ var MessageHandler = function(model) {
     
     var msgType = [];
     
-    
+    var msgLog = [];
     
     //处理消息
     this.handleMessage = function(msg) {
@@ -29,12 +29,16 @@ var MessageHandler = function(model) {
         
         tadpole.timeSinceLastServerUpdate = 0;
         tadpole.messages.push(new Message(msg));
+        
+        //调试
+        messageHandler.popMessage(msg,"user");
     }
     
     var handleSetName = function(name) {
         model.userTadpole.name = name;
         $('#nick').val(model.userTadpole.name);
         $.cookie('todpole_name', model.userTadpole.name, {expires:14});
+        messageHandler.popMessage("成功将名称改为"+name+",输入/register 用户名 密码 来注册成为正式用户.","server");
         return;
     };
     
@@ -82,7 +86,42 @@ var MessageHandler = function(model) {
         func:handleKeyWASD
     });
     //显示消息
-    this.popMessage = function(msg,color) {
+    this.popMessage = function(msg,type) {
+        function delHtmlTag(str){
+            str=str.replace(/</g,'&lt;');    //置换符号<
+            str=str.replace(/>/g,'&gt;');
+            return str;//去掉所有的html标记
+        }
         
+        if(type != "server" && type != "admin" ) msg = delHtmlTag(msg);
+        
+        type = type || "default";
+        
+        var printInfo = "";
+        var printEnd = "";
+        switch(type) {
+            case "init": {
+                printInfo += "<span class=\"info-init\">";
+                printEnd += "</span>";
+            } break;
+            case "server": {
+                printInfo += "<span class=\"info-server\">[Server]</span>";
+            } break;
+            case "user": {
+                var name;
+                if (model.userTadpole.name != '') name = model.userTadpole.name;
+                else name = "游客";
+                printInfo += "<span class=\"info-user\">["+name+"]";
+                printEnd += "</span>";
+            } break;  
+            default: {}
+        }
+        printInfo += msg + printEnd +"<br>";
+        $(".mCSB_container").append(printInfo);
+        $("#infoBox").mCustomScrollbar("update");
+        $("#infoBox").mCustomScrollbar("scrollTo","bottom",{scrollInertia:300});
+        msgLog.push(printInfo);``
+          
     }
+    
 }

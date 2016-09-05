@@ -6,7 +6,8 @@ var Settings = function() {
 
 var App = function(aSettings, aCanvas) {
     var app = this;
-
+    
+    window.initEnter = 0; //处理Enter事件和聊天框focus
     var model, canvas, context, messageHandler, mouse = {
         x: 0,
         y: 0,
@@ -78,7 +79,7 @@ var App = function(aSettings, aCanvas) {
     //全局绘制
     app.draw = function() {
         
-        //开始画全局物体
+        //开始画全局物体------------------------
         model.camera.setupContext();
 
         //绘制水粒子
@@ -94,21 +95,21 @@ var App = function(aSettings, aCanvas) {
 
         //开始UI层级布置(重置变换矩阵) 将transfrom归为正常以绘制UI
         model.camera.startUILayer();
-
+        
+        //开始画UI------------------------------
+        
         //绘制箭头
         for (i in model.arrows) {
             model.arrows[i].draw(context, canvas);
         }
         
         context.fillStyle = "#FFFFFF";
-		context.fillText("keyNavX:"+model.userTadpole.keyNavX, 10,100);
-        context.fillText("keyNavY:"+model.userTadpole.keyNavY, 10,115);
-        context.fillText("SpeedX:"+model.userTadpole.speedX, 10,130);
-        context.fillText("SpeedY:"+model.userTadpole.speedY, 10,145);
-        context.fillText("accX:"+model.userTadpole.aX, 10,160);
-        context.fillText("accY:"+model.userTadpole.aY, 10,175);
+		context.fillText("x:"+model.userTadpole.x, 10,100);
+        context.fillText("y:"+model.userTadpole.y, 10,115);
+        context.fillText("SpeedX:"+model.userTadpole.speedX.toFixed(3), 10,130);
+        context.fillText("SpeedY:"+model.userTadpole.speedY.toFixed(3), 10,145);
+        context.fillText("Speed:"+model.userTadpole.speed.toFixed(3), 10,160);
         context.fillText("SpeedAngle:"+model.userTadpole.speedAngle, 10,190);
-        context.fillText("a:"+(model.userTadpole.a),10,220);
     };
     
 /*
@@ -181,24 +182,24 @@ var App = function(aSettings, aCanvas) {
         if (e.keyCode == keys.up) {
             //console.log("up");
             model.userTadpole.keyNavY = -1;
-            model.userTadpole.isAccing = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.down) {
             //console.log("down");
             model.userTadpole.keyNavY = 1;
-            model.userTadpole.isAccing = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.left) {
             //console.log("left");
-            model.userTadpole.keyNavX = -1;
-            model.userTadpole.isAccing = 1;
-            e.preventDefault();
+            model.userTadpole.keyNavX = -1;        e.preventDefault();
         } else if (e.keyCode == keys.right) {
             //console.log("right");
             model.userTadpole.keyNavX = 1;
-            model.userTadpole.isAccing = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.enter) {
+            //打开聊天框
+            window.initEnter = 1;
+            $("#chatBox").animate({opacity:"1"});
+            $("#infoBox").mCustomScrollbar("update");
+            $("#infoBox").mCustomScrollbar("scrollTo","bottom",{scrollInertia:1000});
             $("#chat").focus();
             e.preventDefault();
         }
@@ -208,17 +209,9 @@ var App = function(aSettings, aCanvas) {
     app.keyup = function(e) {
         if (e.keyCode == keys.up || e.keyCode == keys.down) {
             model.userTadpole.keyNavY = 0;
-            if (model.userTadpole.keyNavX == 0 && model.userTadpole.keyNavY == 0) {
-                model.userTadpole.isAccing = 0;
-            }
-            model.userTadpole.updateKeyNav();
             e.preventDefault();
         } else if (e.keyCode == keys.left || e.keyCode == keys.right) {
             model.userTadpole.keyNavX = 0;
-            if (model.userTadpole.keyNavX == 0 && model.userTadpole.keyNavY == 0) {
-                model.userTadpole.isAccing = 0;
-            }
-            model.userTadpole.updateKeyNav();
             e.preventDefault();
         }
     };
@@ -301,10 +294,12 @@ var App = function(aSettings, aCanvas) {
         model.userTadpole = new Tadpole();
         model.userTadpole.id = -1;
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
-
+        
+        model.userTadpole.weapon.push();
+        
         //添加水粒子
         model.decoStars = [];
-        for (var i = 0; i < 150; i++) {
+        for (var i = 0; i < 400; i++) {
             model.decoStars.push(new decoStars());
         }
 
@@ -314,6 +309,10 @@ var App = function(aSettings, aCanvas) {
         
         //消息处理
         messageHandler = new MessageHandler(model);
+        
+        $(function(){
+            
+        });
         
         /*
         //websocket部分

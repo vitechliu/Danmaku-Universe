@@ -1,15 +1,15 @@
 var Tadpole = function() {
 	var tadpole = this;
 	//初始位置随机 300*300矩形内
-    var hfsqrt2 = Math.sqrt(2)/2;
     
 	this.x = Math.random() * 300 - 150;
 	this.y = Math.random() * 300 - 150;
+    this.z = 100;
     
     //圆的半径
 	this.size = 6;
     
-    //新增-三角
+    //默认主炮塔
     this.headSize = 2;
     this.headAngle = Math.PI * 0.14;
     this.headDistance = 1.5;
@@ -26,6 +26,10 @@ var Tadpole = function() {
     //主机武器朝向
 	this.angle = Math.PI * 2;
     
+    //武器
+    this.Weapon = [];
+    
+    
     //主机转体速度 (>1) 
     this.turningSpeed = 5;
     
@@ -33,50 +37,34 @@ var Tadpole = function() {
     this.speedX = 0;
     this.speedY = 0;
     this.speedAngle = 0;
+    this.frictionAngle = 0;
     this.speedMax = 2.5;
     
-    
-    this.a = 0;
-    this.aX = 0;
-    this.aY = 0;
-    this.fraction = 0.05;
+    this.friction = 0.05;
     this.standardAcc = 0.15;
-    this.accAngle = 0;
-    
-    this.isMoving = 0;
-    this.isAccing = 0;
-    this.inclined = 0;
 	
     this.keyNavX = 0;
     this.keyNavY = 0;
     
     //是否纯键盘控制
     this.noMouse = 0;
+    
     //消息
 	this.messages = [];
     
     //不活动时间
 	//this.timeSinceLastActivity = 0;
 	
+    //是否改变
 	this.changed = 0;
     
     //无服务器加载时间
 	this.timeSinceLastServerUpdate = 0;
 	
-    
 	this.update = function(mouse) {
 		tadpole.timeSinceLastServerUpdate++;
         
-		//完成！！！！！撒花
-        
-        
-        //判断移动状态
-        if (tadpole.speedX != 0 || tadpole.speedY != 0) tadpole.isMoving = 1;
-        else tadpole.isMoving = 0;
-        
-        //判断是否按了两个键
-        if(tadpole.keyNavX!=0 && tadpole.keyNavY!=0) tadpole.inclined = hfsqrt2;
-        else tadpole.inclined = 1;
+        var currFriction = tadpole.friction;
         
         //更新位置
         tadpole.x += tadpole.speedX;
@@ -84,37 +72,30 @@ var Tadpole = function() {
         
         //获取全局速度及方向
         tadpole.speed = Math.sqrt(tadpole.speedX*tadpole.speedX+tadpole.speedY*tadpole.speedY);
-        if(tadpole.isMoving == 1) {
-            tadpole.speedAngle = Math.atan2(tadpole.speedY,tadpole.speedX);
-        }
         
-        //更新速度
-        if (tadpole.keyNavX != 0 ) {
-            tadpole.speedX += tadpole.a*tadpole.keyNavX;
-            if(Math.abs(tadpole.speedX) > tadpole.speedMax*tadpole.inclined) tadpole.speedX -= tadpole.a*tadpole.keyNavX;
-        } else {
-            if(Math.abs(tadpole.speedX) <= Math.abs(tadpole.a*Math.cos(tadpole.speedAngle))) tadpole.speedX = 0;
-            else tadpole.speedX -= tadpole.fraction*Math.cos(tadpole.speedAngle);
-        }
-        if (tadpole.keyNavY != 0 ) {
-            tadpole.speedY += tadpole.a*tadpole.keyNavY;
-            if(Math.abs(tadpole.speedY) > tadpole.speedMax*tadpole.inclined) tadpole.speedY -= tadpole.a*tadpole.keyNavY;
-        } else {
-            if(Math.abs(tadpole.speedY) <= Math.abs(tadpole.a*Math.sin(tadpole.speedAngle))) tadpole.speedY = 0;
-            else tadpole.speedY -= tadpole.fraction*Math.sin(tadpole.speedAngle);
-        }
+        if(tadpole.speed>0) {
+            currFriction = tadpole.friction;
+            tadpole.frictionAngle = Math.atan2(tadpole.speedY,tadpole.speedX);
+        } else currFriction = 0;
         
-           
-        //更新加速度
-        if(tadpole.isAccing) {
-            tadpole.a = tadpole.standardAcc - tadpole.fraction;
-        } else {
-            if (tadpole.isMoving) {
-                tadpole.a = -tadpole.fraction;
+        if(tadpole.speed < tadpole.speedMax) {
+            if(tadpole.keyNavX !=0 || tadpole.keyNavY !=0) {
+                tadpole.speedAngle = Math.atan2(tadpole.keyNavY,tadpole.keyNavX);
             } else {
-                tadpole.a = 0;
+                tadpole.speedAngle = -100;
+            }
+            
+            if(tadpole.speedAngle != -100) {
+                tadpole.speedX += tadpole.standardAcc*Math.cos(tadpole.speedAngle);
+                tadpole.speedY += tadpole.standardAcc*Math.sin(tadpole.speedAngle);
             }
         }
+        
+        if (tadpole.speedX * (tadpole.speedX - tadpole.friction*Math.cos(tadpole.frictionAngle)) <= 0) tadpole.speedX = 0;
+        else tadpole.speedX -= currFriction*Math.cos(tadpole.frictionAngle);
+        if (tadpole.speedY * (tadpole.speedY - tadpole.friction*Math.sin(tadpole.frictionAngle)) <= 0) tadpole.speedY = 0;
+        else tadpole.speedY -= tadpole.friction*Math.sin(tadpole.frictionAngle);
+        
         //更新消息队列
 		for (var i = tadpole.messages.length - 1; i >= 0; i--) {
 			var msg = tadpole.messages[i];

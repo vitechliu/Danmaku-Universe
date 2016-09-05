@@ -26,7 +26,7 @@ var Camera = function(aCanvas, aContext, x, y) {
 		context.setTransform(1,0,0,1,0,0);
         
         //过渡上色
-		context.fillStyle = 'hsl('+backgroundColor+',50%,10%)';
+		context.fillStyle = 'hsl('+backgroundColor+',50%,3%)';
 		context.fillRect(0,0,canvas.width, canvas.height);
 		
         //translate() 方法重新映射画布上的 (0,0) 位置。
@@ -43,7 +43,7 @@ var Camera = function(aCanvas, aContext, x, y) {
 	this.update = function(model) {
         
         //背景色调渐变
-		backgroundColor += 0.08;
+		backgroundColor += 0.02;
 		backgroundColor = backgroundColor > 360 ? 0 : backgroundColor;
 		
         

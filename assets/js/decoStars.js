@@ -3,10 +3,18 @@ var decoStars = function() {
 	
 	wp.x = 0;
 	wp.y = 0;
-	wp.z = Math.random() * 1 + 0.3;
-	wp.size = 1.2;
-	wp.opacity = Math.random() * 0.8 + 0.1;
-	
+	wp.z = Math.random() * 0.8 + 0.1;
+	wp.size = 1;
+	wp.opacity = Math.random() * 0.7 + 0.1;
+    wp.blur = 0;
+    wp.color = "rgba(226,219,226,";
+    
+    if (Math.random()<0.01) {
+        wp.color = "rgba("+Math.floor(Math.random()*200+55)+","+Math.floor(Math.random()*200+55)+","+Math.floor(Math.random()*200+55)+",";
+        wp.size += Math.random()*2;
+        wp.blur = Math.random()*3+2;
+    }
+    
 	wp.update = function(bounds) {
 		if(wp.x == 0 || wp.y == 0) {
 			wp.x = Math.random() * (bounds[1].x - bounds[0].x) + bounds[0].x;
@@ -22,7 +30,17 @@ var decoStars = function() {
 	
 	wp.draw = function(context) {
 		// Draw circle
-		context.fillStyle = 'rgba(226,219,226,'+wp.opacity+')';
+        if (wp.blur>0) {
+            context.shadowOffsetX = 0;
+            context.shadowOffsetY = 0;
+            context.shadowBlur    = wp.blur;
+            context.shadowColor   = wp.color+wp.opacity*0.7+')';
+        } else {
+            context.shadowOffsetX = 0;
+            context.shadowOffsetY = 0;
+            context.shadowBlur    = 0;
+        }
+		context.fillStyle = wp.color+wp.opacity+')';
 		//context.fillStyle = '#fff';
 		context.beginPath();
 		context.arc(wp.x, wp.y, this.z * this.size, 0, Math.PI*2, true);
