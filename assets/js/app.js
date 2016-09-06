@@ -4,8 +4,15 @@ var Settings = function() {
     this.socketServer = 'ws://' + domain_arr[Math.floor(Math.random() * domain_arr.length + 1) - 1] + ':8280';
 }
 
+var camp = []; //阵营
+camp[0] = "user";
+camp[1] = "neutral"; //中立
+camp[2] = "hostile"; //敌对
+camp[3] = "friendly"; //友好
+
 var App = function(aSettings, aCanvas) {
     var app = this;
+    
     
     window.initEnter = 0; //处理Enter事件和聊天框focus
     var model, canvas, context, messageHandler, mouse = {
@@ -63,6 +70,12 @@ var App = function(aSettings, aCanvas) {
             model.tadpoles[id].update(mouse);
         }
 
+        //更新特效
+        for (var i = model.effects.length-1;i>=0;i--) {
+            model.effects[i].update();
+            if(model.effects[i].die) model.effects.splice(i,1);
+        }
+        
         //更新水粒子
         for (i in model.decoStars) {
             model.decoStars[i].update(model.camera.getOuterBounds(), model.camera.zoom);
@@ -85,7 +98,11 @@ var App = function(aSettings, aCanvas) {
         //绘制水粒子
         for (i in model.decoStars) {
             model.decoStars[i].draw(context);
-            model.decoStars[i].draw(context);
+        }
+        
+        //绘制特效
+        for (i in model.effects) {
+            model.effects[i].draw(context);
         }
 
         //绘制主机
@@ -159,6 +176,9 @@ var App = function(aSettings, aCanvas) {
         if (model.userTadpole && e.which == 1) {
             //如果存在己方蝌蚪 同时是左键，就加上动量
             //鼠标左键点击(弹幕)
+            model.userTadpole.fire(model,"user");
+            model.effects.push(new Effect(standardEffect.particles.large));
+            console.log(model.effects);
         }
 
     };
@@ -295,13 +315,16 @@ var App = function(aSettings, aCanvas) {
         model.userTadpole.id = -1;
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
-        model.userTadpole.weapon.push();
+        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_I);
         
         //添加水粒子
         model.decoStars = [];
         for (var i = 0; i < 400; i++) {
             model.decoStars.push(new decoStars());
         }
+        
+        //添加特效
+        model.effects = [];
 
         model.camera = new Camera(canvas, context, model.userTadpole.x, model.userTadpole.y);
         

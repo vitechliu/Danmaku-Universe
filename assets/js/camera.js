@@ -109,15 +109,10 @@ var Camera = function(aCanvas, aContext, x, y) {
 		context.stroke();
         
 	};
-    
-    var debugThings = function(bounds) {
-        context.fillStyle = "#FFFFFF";
-		context.fillText("", bounds[0].x + 10, bounds[0].y + 40);
-    }
 	
 	var drawDebug = function() {
-		debugBounds(camera.getInnerBounds());
-		debugBounds(camera.getBounds());
+		//debugBounds(camera.getInnerBounds());
+		//debugBounds(camera.getBounds());
         //debugThings(camera.getBounds());
 	};
 };

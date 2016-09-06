@@ -27,8 +27,13 @@ var Tadpole = function() {
 	this.angle = Math.PI * 2;
     
     //武器
-    this.Weapon = [];
+    this.weapon = [];
+    this.weapon[1] = null;
+    this.weapon[2] = null;
+    this.weapon[3] = null;
+    this.weapon[4] = null;
     
+    this.weaponSlot = 2;
     
     //主机转体速度 (>1) 
     this.turningSpeed = 5;
@@ -41,7 +46,7 @@ var Tadpole = function() {
     this.speedMax = 2.5;
     
     this.friction = 0.05;
-    this.standardAcc = 0.15;
+    this.standardAcc = 0.25;
 	
     this.keyNavX = 0;
     this.keyNavY = 0;
@@ -60,7 +65,12 @@ var Tadpole = function() {
     
     //无服务器加载时间
 	this.timeSinceLastServerUpdate = 0;
-	
+    
+    this.fire = function(model,camp) {
+        for (var i=1;i<tadpole.weaponSlot+1;i++) {
+            if (tadpole.weapon[i]!=null) tadpole.weapon[i].fire(model,camp);
+        }
+    }
 	this.update = function(mouse) {
 		tadpole.timeSinceLastServerUpdate++;
         
@@ -97,6 +107,7 @@ var Tadpole = function() {
         else tadpole.speedY -= tadpole.friction*Math.sin(tadpole.frictionAngle);
         
         //更新消息队列
+        //负向更新才能splice!!!
 		for (var i = tadpole.messages.length - 1; i >= 0; i--) {
 			var msg = tadpole.messages[i];
 			msg.update();
