@@ -1,4 +1,4 @@
-var decoStars = function() {
+var DecoStars = function() {
 	var wp = this;
 	
 	wp.x = 0;

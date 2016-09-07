@@ -6,11 +6,17 @@ var Settings = function() {
 
 var camp = []; //阵营
 camp[0] = "user";
-camp[1] = "neutral"; //中立
-camp[2] = "hostile"; //敌对
-camp[3] = "friendly"; //友好
+camp[1] = "neutral"; //中立 对一切生物中立
+camp[2] = "hostile"; //敌对 对一切生物敌对
+camp[3] = "friendly"; //友好 常见于无
 
-var App = function(aSettings, aCanvas) {
+var campJudge = [];
+campJudge[0] = [true,true,false,true];
+campJudge[1] = [true,true,false,true];
+campJudge[2] = [false,false,false,false];
+
+
+var App = function(aCanvas) {
     var app = this;
     
     
@@ -67,7 +73,7 @@ var App = function(aSettings, aCanvas) {
 
         //更新主机
         for (id in model.tadpoles) {
-            model.tadpoles[id].update(mouse);
+            model.tadpoles[id].update(mouse,model);
         }
 
         //更新特效
@@ -87,6 +93,8 @@ var App = function(aSettings, aCanvas) {
             var arrow = model.arrows[i];
             arrow.update();
         }
+        
+        //武器在tadpole.update中更新
     };
 
     //全局绘制
@@ -176,9 +184,10 @@ var App = function(aSettings, aCanvas) {
         if (model.userTadpole && e.which == 1) {
             //如果存在己方蝌蚪 同时是左键，就加上动量
             //鼠标左键点击(弹幕)
-            model.userTadpole.fire(model,"user");
-            model.effects.push(new Effect(standardEffect.particles.large));
-            console.log(model.effects);
+            model.userTadpole.fire(model);
+            
+            //model.effects.push(new Effect(standardEffect.particles.large));
+            //console.log(model.effects);
         }
 
     };
@@ -186,7 +195,7 @@ var App = function(aSettings, aCanvas) {
     //如果是松开左键,设动量为0
     app.mouseup = function(e) {
         if (model.userTadpole && e.which == 1) {
-        //鼠标左键松开
+            model.userTadpole.cease();
         }
     };
 
@@ -309,29 +318,108 @@ var App = function(aSettings, aCanvas) {
         resizeCanvas();
 
         model = new Model();
-        model.settings = aSettings;
+        //model.settings = aSettings;
 
         model.userTadpole = new Tadpole();
         model.userTadpole.id = -1;
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
-        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_I);
+        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_Tripple,model.userTadpole);
+        model.userTadpole.camp = camp[0]; //设立阵营
         
         //添加水粒子
-        model.decoStars = [];
-        for (var i = 0; i < 400; i++) {
-            model.decoStars.push(new decoStars());
-        }
         
+        model.decoStars = [];
+        
+        for (var i = 0; i < 400; i++) {
+            model.decoStars.push(new DecoStars());
+        }
         //添加特效
         model.effects = [];
-
+            
+        //镜头初始化
         model.camera = new Camera(canvas, context, model.userTadpole.x, model.userTadpole.y);
         
+        //箭头初始化
         model.arrows = {};
         
         //消息处理
         messageHandler = new MessageHandler(model);
+        
+        
+        model.getDistance = function(x1,y1,x2,y2) {
+            return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+        }
+        
+        //添加敌人函数(测试)
+        
+        model.addEnemy = function(AI,x,y,camp,wp) {
+            var t = new Tadpole();
+            t.AI = AI;
+            t.x = x;
+            t.y = y;
+            t.camp = camp;
+            t.weapon[1] = wp;
+            model.tadpoles.push(t);
+        }
+        //model全局判断附近敌人数量
+        model.getEnemyNum = function(self,radius,c) {
+            var num = -1;
+            switch(c) {
+                case camp[0]:{ //玩家
+                    for (var i in model.tadpoles) 
+                        if (model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) num++;
+                    return num;
+                } break;
+                case camp[2]:{
+                    for (var i in model.tadpoles) 
+                        if (model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) num++;
+                    return num;
+                } break;
+                default: {return 0;} break;
+            }
+        };
+        
+        model.getEnemy = function(self,radius,c) {
+            var enemy = [];
+            switch(c) {
+                case camp[0]:{ //玩家
+                    for (var i in model.tadpoles) 
+                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) enemy.push(tadpoles[i]);
+                    return enemy;
+                } break;
+                case camp[2]:{
+                    for (var i in model.tadpoles) 
+                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) enemy.push(tadpoles[i]);
+                    return enemy;
+                } break;
+                default: {return enemy;} break;
+            }
+        };
+        
+        model.getCloseEnemy = function(self,c,d) {
+            var d = d || 1000;
+            var enemy = null;
+            switch(c) {
+                case camp[0]:{ //玩家
+                    for (var i in model.tadpoles) 
+                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=d) {
+                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y);
+                            enemy = model.tadpoles[i];
+                        }
+                    return enemy;
+                } break;
+                case camp[2]:{
+                    for (var i in model.tadpoles) 
+                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=d) {   
+                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y);
+                            enemy = model.tadpoles[i];
+                        }             
+                    return enemy;
+                } break;
+                default: {return enemy;} break;
+            }
+        }
         
         $(function(){
             

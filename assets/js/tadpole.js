@@ -1,15 +1,17 @@
 var Tadpole = function() {
 	var tadpole = this;
-	//初始位置随机 300*300矩形内
     
+    this.AI = null;
+    
+	//初始位置随机 300*300矩形内
 	this.x = Math.random() * 300 - 150;
 	this.y = Math.random() * 300 - 150;
-    this.z = 100;
+    this.z = 100; //频道
     
     //圆的半径
 	this.size = 6;
     
-    //默认主炮塔
+    //默认主炮塔绘制参数
     this.headSize = 2;
     this.headAngle = Math.PI * 0.14;
     this.headDistance = 1.5;
@@ -66,13 +68,27 @@ var Tadpole = function() {
     //无服务器加载时间
 	this.timeSinceLastServerUpdate = 0;
     
-    this.fire = function(model,camp) {
+    this.fire = function(model) {
         for (var i=1;i<tadpole.weaponSlot+1;i++) {
-            if (tadpole.weapon[i]!=null) tadpole.weapon[i].fire(model,camp);
+            if (tadpole.weapon[i]!=null) tadpole.weapon[i].fire(model);
         }
-    }
-	this.update = function(mouse) {
+    };
+    
+    this.cease = function() {
+        for (var i=1;i<tadpole.weaponSlot+1;i++) {
+            if (tadpole.weapon[i]!=null) tadpole.weapon[i].cease();
+        }
+    };
+    
+	this.update = function(mouse,model) {
 		tadpole.timeSinceLastServerUpdate++;
+        
+        tadpole.age++;
+        
+        if(tadpole.AI != null) {
+            var condition = {};
+            tadpole.AI.update(condition,model);
+        }
         
         var currFriction = tadpole.friction;
         
@@ -129,11 +145,17 @@ var Tadpole = function() {
         
         //更新尾巴
 		//tadpole.tail.update();
+        
+        //更新武器
+        for (var i=1;i<tadpole.weaponSlot+1;i++) {
+            if (tadpole.weapon[i]!=null) tadpole.weapon[i].update(tadpole,model);
+        }
 	};
 	
     //如果认证了,点击出twitter地址
-    /*
+    
 	this.onclick = function(e) {
+        /*
 		if(e.ctrlKey && e.which == 1) {
 			if(isAuthorized() && tadpole.hover) {
 				window.open("http://twitter.com/" + tadpole.name.substring(1));
@@ -145,13 +167,14 @@ var Tadpole = function() {
 			e.preventDefault();
             return true;
 		}
+        */
         return false;
 	};
-	*/``
+	
     
     //更新
 	this.userUpdate = function(tadpoles, angleTargetX, angleTargetY) {
-		this.age++;
+		
 		
         var prevState = {
 			angle: tadpole.angle,
@@ -184,6 +207,7 @@ var Tadpole = function() {
         
 	};
 	
+    
 	this.draw = function(context) {
         //不透明度 
         //本opacity方程式是 timeSinceLastServerUpdate 从300到+inf 时 opa从1平滑过渡到0.2的方程式
@@ -230,9 +254,9 @@ var Tadpole = function() {
         //画三角头
         context.beginPath();
         
-        context.moveTo(tadpole.x+(tadpole.size+this.headDistance+this.headSize)*Math.cos(tadpole.angle),tadpole.y+(tadpole.size+this.headDistance+this.headSize)*Math.sin(tadpole.angle));
-		context.lineTo(tadpole.x+(tadpole.size+this.headDistance)*Math.cos(tadpole.angle-this.headAngle),tadpole.y+(tadpole.size+this.headDistance)*Math.sin(tadpole.angle-this.headAngle));
-        context.lineTo(tadpole.x+(tadpole.size+this.headDistance)*Math.cos(tadpole.angle+this.headAngle),tadpole.y+(tadpole.size+this.headDistance)*Math.sin(tadpole.angle+this.headAngle));
+        context.moveTo(tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle),tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle));
+		context.lineTo(tadpole.x+(tadpole.size+tadpole.headDistance)*Math.cos(tadpole.angle-tadpole.headAngle),tadpole.y+(tadpole.size+tadpole.headDistance)*Math.sin(tadpole.angle-tadpole.headAngle));
+        context.lineTo(tadpole.x+(tadpole.size+tadpole.headDistance)*Math.cos(tadpole.angle+tadpole.headAngle),tadpole.y+(tadpole.size+tadpole.headDistance)*Math.sin(tadpole.angle+tadpole.headAngle));
         
         context.closePath();
         context.fill();
@@ -240,8 +264,10 @@ var Tadpole = function() {
         //画尾巴
 		//tadpole.tail.draw(context);
 		
-		context.closePath();
-		context.fill();
+        //画武器
+        for (var i=1;i<tadpole.weaponSlot+1;i++) {
+            if (tadpole.weapon[i]!=null) tadpole.weapon[i].draw(context);
+        }
         
 		context.shadowBlur = 0;
 		context.shadowColor   = '';
@@ -274,6 +300,8 @@ var Tadpole = function() {
 		tadpole.messages.reverse();
 	};
 	
+
+    /*
     //画头像
 	var drawIcon = function(context){
 		if('undefined' == typeof tadpole.img || 'undefined' == typeof tadpole.img.src || tadpole.img.src != tadpole.icon){
@@ -300,8 +328,7 @@ var Tadpole = function() {
 		}
 	};
 	
-	
-    /*
+
     // 尾巴
 	(function() {
 		tadpole.tail = new TadpoleTail(tadpole);

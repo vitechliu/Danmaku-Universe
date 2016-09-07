@@ -1,4 +1,4 @@
-var settings = new Settings();
+//var settings = new Settings();
 
 var debug = true;
 var isStatsOn = false; //显示FPS
@@ -22,7 +22,7 @@ window.requestAnimFrame = (function() {
 
 var initApp = function() {
 	if (app!=null) { return; }
-	app = new App(settings, document.getElementById('canvas'));
+	app = new App(document.getElementById('canvas'));
     
     //绑定窗口变化
 	window.addEventListener('resize', app.resize, false);
