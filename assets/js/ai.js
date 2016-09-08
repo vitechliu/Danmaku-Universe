@@ -1,9 +1,10 @@
 var standardAI = {
-    enemy_tadpole:{
+    enemy_tadpole_idle:{
         name:"Enemy",
         control:function(tadpole,condition) {
-            
-        }
+            return;
+        },
+        vision:800
     }
 }
 

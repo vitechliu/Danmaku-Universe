@@ -31,7 +31,7 @@ var standardWeapon = {
         isDesigned:false,
         isRandomed:false,
         type:1,
-        frequency:20,
+        frequency:22,
         danmakuType:standardDanmaku.standard_I,
         counterShield:false,
         speedAdd:1,

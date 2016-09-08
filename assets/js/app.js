@@ -131,10 +131,17 @@ var App = function(aCanvas) {
         context.fillStyle = "#FFFFFF";
 		context.fillText("x:"+model.userTadpole.x, 10,100);
         context.fillText("y:"+model.userTadpole.y, 10,115);
+        /*
         context.fillText("SpeedX:"+model.userTadpole.speedX.toFixed(3), 10,130);
         context.fillText("SpeedY:"+model.userTadpole.speedY.toFixed(3), 10,145);
         context.fillText("Speed:"+model.userTadpole.speed.toFixed(3), 10,160);
         context.fillText("SpeedAngle:"+model.userTadpole.speedAngle, 10,190);
+        
+        context.fillText("keyNavX:"+model.userTadpole.keyNavX.toFixed(3), 10,210);
+        context.fillText("keyNavY:"+model.userTadpole.keyNavY.toFixed(3), 10,230);
+        
+        context.fillText("keyNavY:"+model.userTadpole.keyNavY.toFixed(3), 10,230);
+        */
     };
     
 /*
@@ -209,18 +216,14 @@ var App = function(aCanvas) {
     app.keydown = function(e) {
         //keyNav为动量方向
         if (e.keyCode == keys.up) {
-            //console.log("up");
             model.userTadpole.keyNavY = -1;
             e.preventDefault();
         } else if (e.keyCode == keys.down) {
-            //console.log("down");
             model.userTadpole.keyNavY = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.left) {
-            //console.log("left");
             model.userTadpole.keyNavX = -1;        e.preventDefault();
         } else if (e.keyCode == keys.right) {
-            //console.log("right");
             model.userTadpole.keyNavX = 1;
             e.preventDefault();
         } else if (e.keyCode == keys.enter) {
@@ -363,9 +366,9 @@ var App = function(aCanvas) {
             model.tadpoles.push(t);
         }
         //model全局判断附近敌人数量
-        model.getEnemyNum = function(self,radius,c) {
+        model.getEnemyNum = function(self,radius) {
             var num = -1;
-            switch(c) {
+            switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
                         if (model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) num++;
@@ -380,9 +383,9 @@ var App = function(aCanvas) {
             }
         };
         
-        model.getEnemy = function(self,radius,c) {
+        model.getEnemy = function(self,radius) {
             var enemy = [];
-            switch(c) {
+            switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
                         if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) enemy.push(tadpoles[i]);
@@ -397,10 +400,10 @@ var App = function(aCanvas) {
             }
         };
         
-        model.getCloseEnemy = function(self,c,d) {
+        model.getCloseEnemy = function(self,d) {
             var d = d || 1000;
             var enemy = null;
-            switch(c) {
+            switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
                         if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=d) {

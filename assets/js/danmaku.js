@@ -17,7 +17,18 @@ var standardDanmaku = {
 }
 
 //碰撞检测!!
-
+var cldPointCircle = function(px,py,cx,cy,cr) {
+    if (Math.sqrt((px-cx)*(px-cx)+(py-cy)*(py-cy))<cr) return true;
+    else return false;
+}
+var cldCircleCircle = function(cx1,cy1,cr1,cx2,cy2,cr2) {
+    if (Math.sqrt((cx1-cx2)*(cx1-cx2)+(cy1-cy2)*(cy1-cy2))<cr1+cr2) return true;
+    else return false;
+}
+var cldPointRectangle = function(px,py,rx,ry,rw,rh,ra) { //矩形x,y指中心点 待完善
+    if (true) return true;
+    else return false;
+}
 
 var Danmaku = function(model,dSettings,parameter) {
     //model 弹幕类型 弹幕参数

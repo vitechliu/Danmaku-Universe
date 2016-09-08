@@ -2,19 +2,19 @@ var MessageHandler = function(model) {
     var messageHandler = this;
     var model = model;
     
-    var msgType = [];
+    
     
     var msgLog = [];
     
     //处理消息
     this.handleMessage = function(msg) {
-        var tadpole = model.tadpoles[-1];
+        var tadpole = model.userTadpole;
         var tested = false;
         console.log(1);
         $.each(msgType,function(idx,obj) {
             var regexp = obj.pattern;
             if(regexp.test(msg)) {
-                console.log(3)
+                console.log(obj);
                 switch(obj.arg) {
                     case 2:obj.func(msg.match(regexp)[1],msg.match(regexp)[2]); break;
                     case 1:obj.func(msg.match(regexp)[1]); break;
@@ -43,11 +43,17 @@ var MessageHandler = function(model) {
     };
     
     var handleRegister = function(username,password) {
-        model.userTadpole.name = name;
-        $('#nick').val(model.userTadpole.name);
-        $.cookie('todpole_name', model.userTadpole.name, {expires:14});
+        
         return;
     };
+    
+    var handleHelp = function() {
+        messageHandler.popMessage("指令列表 1-1  方括弧'[]'中为参数，输入时请勿输入方括弧!","info");
+        messageHandler.popMessage("/setname [名称] : 修改名称","info");
+        messageHandler.popMessage("/register [用户名] [密码]: 注册,请勿使用中文字符作为用户名或密码","info");
+        messageHandler.popMessage("/keywasd : 修改基础操作方式为WASD操作","info");
+        messageHandler.popMessage("/keyarrow : 修改基础操作方式为方向键操作","info");
+    }
     
     var handleKeyArrow = function() {
         keys.up = keys.direction_up;
@@ -65,26 +71,46 @@ var MessageHandler = function(model) {
         return;
     };
     
-    msgType.push({
+    var handleSetWeapon = function(place,wp) {
+        if(model.userTadpole.weaponSlot < place) {
+            messageHandler.popMessage("此武器槽尚未开放!","server");
+            return;
+        }
+        try {
+            model.userTadpole.weapon[place] = new Weapon(standardWeapon[wp]);
+        } catch(e){
+            messageHandler.popMessage("请输入正确的武器名","server");
+        }
+    }
+    
+    //指令对应表
+    var msgType = [{
         pattern:/^\/setname (\S+)$/i,
         arg:1,
         func:handleSetName
-    });
-    msgType.push({
+    },{
         pattern:/^\/register (\S+) (\S+)$/i,
         arg:2,
         func:handleRegister
-    });
-    msgType.push({
+    },{
+        pattern:/^\/help$/i,
+        arg:0,
+        func:handleHelp
+    },{
         pattern:/^\/keyarrow$/i,
         arg:0,
         func:handleKeyArrow
-    });
-    msgType.push({
+    },{
         pattern:/^\/keywasd$/i,
         arg:0,
         func:handleKeyWASD
-    });
+    },{
+        pattern:/^\/setweapon ([1-4]) (\S+)$/i,
+        arg:2,
+        func:handleSetWeapon
+    }];
+    
+    
     //显示消息
     this.popMessage = function(msg,type) {
         function delHtmlTag(str){
@@ -100,8 +126,8 @@ var MessageHandler = function(model) {
         var printInfo = "";
         var printEnd = "";
         switch(type) {
-            case "init": {
-                printInfo += "<span class=\"info-init\">";
+            case "info": {
+                printInfo += "<span class=\"info-info\">[Info]";
                 printEnd += "</span>";
             } break;
             case "server": {
@@ -116,6 +142,7 @@ var MessageHandler = function(model) {
             } break;  
             default: {}
         }
+        
         printInfo += msg + printEnd +"<br>";
         $(".mCSB_container").append(printInfo);
         $("#infoBox").mCustomScrollbar("update");

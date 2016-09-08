@@ -1,6 +1,12 @@
 var Tadpole = function() {
 	var tadpole = this;
     
+    //全局属性
+    this.hpmx = 1000;
+    this.hp = 1000;
+    this.die = false;
+    
+    //AI
     this.AI = null;
     
 	//初始位置随机 300*300矩形内
@@ -10,7 +16,6 @@ var Tadpole = function() {
     
     //圆的半径
 	this.size = 6;
-    
     //默认主炮塔绘制参数
     this.headSize = 2;
     this.headAngle = Math.PI * 0.14;
@@ -20,12 +25,12 @@ var Tadpole = function() {
 	this.age = 0;
 	//this.sex = -1;
 	//this.icon = '/images/default.png'; //头像
-	this.img = {};
+	//this.img = {};
 	
     //是否有鼠标经过
 	this.hover = false;
     
-    //主机武器朝向
+    //主机炮塔朝向(与鼠标一致)
 	this.angle = Math.PI * 2;
     
     //武器
@@ -35,20 +40,28 @@ var Tadpole = function() {
     this.weapon[3] = null;
     this.weapon[4] = null;
     
+    //武器是否激活
+    this.weaponActivated = [];
+    this.weaponActivated[1] = true;
+    this.weaponActivated[2] = true;
+    this.weaponActivated[3] = true;
+    this.weaponActivated[4] = true;
+    
+    //开放武器槽
     this.weaponSlot = 2;
     
-    //主机转体速度 (>1) 
+    //主机转体速度 (>1) 越小越快
     this.turningSpeed = 5;
     
 	this.speed = 0;
     this.speedX = 0;
     this.speedY = 0;
-    this.speedAngle = 0;
-    this.frictionAngle = 0;
-    this.speedMax = 2.5;
+    this.speedAngle = 0; //全局速度方向
+    this.addAngle = 0; //加速时加速的方向
+    this.speedMax = 3; // 最大速度
     
-    this.friction = 0.05;
-    this.standardAcc = 0.25;
+    this.friction = 0.15; // 摩擦力
+    this.standardAcc = 0.45; // 驱动加速度
 	
     this.keyNavX = 0;
     this.keyNavY = 0;
@@ -65,6 +78,17 @@ var Tadpole = function() {
     //是否改变
 	this.changed = 0;
     
+    function motion_add(dir,speed) {
+        tadpole.speedX += speed*Math.cos(dir);
+        tadpole.speedY += speed*Math.sin(dir);
+        tadpole.speed = Math.sqrt(tadpole.speedX*tadpole.speedX+tadpole.speedY*tadpole.speedY);
+    }
+    
+    function motion_set(dir,speed){
+        tadpole.speed = speed;
+        tadpole.speedX = speed*Math.cos(dir);
+        tadpole.speedY = speed*Math.sin(dir);
+    }
     //无服务器加载时间
 	this.timeSinceLastServerUpdate = 0;
     
@@ -85,42 +109,35 @@ var Tadpole = function() {
         
         tadpole.age++;
         
+        //AIupdate
         if(tadpole.AI != null) {
             var condition = {};
-            tadpole.AI.update(condition,model);
+            condition.enemyNum = model.getEnemyNum(tadpole,tadpole.AI.vision);
+            condition.closeEnemy = model.getEnemyNum(tadpole,tadpole.AI.vision);
+            tadpole.AI.update(tadpole,condition);
         }
-        
-        var currFriction = tadpole.friction;
-        
+
+        //--------------物理引擎开始--------------
         //更新位置
         tadpole.x += tadpole.speedX;
         tadpole.y += tadpole.speedY;
         
-        //获取全局速度及方向
-        tadpole.speed = Math.sqrt(tadpole.speedX*tadpole.speedX+tadpole.speedY*tadpole.speedY);
         
-        if(tadpole.speed>0) {
-            currFriction = tadpole.friction;
-            tadpole.frictionAngle = Math.atan2(tadpole.speedY,tadpole.speedX);
-        } else currFriction = 0;
-        
-        if(tadpole.speed < tadpole.speedMax) {
+        if(tadpole.AI == null && tadpole.speed < tadpole.speedMax ) {
             if(tadpole.keyNavX !=0 || tadpole.keyNavY !=0) {
-                tadpole.speedAngle = Math.atan2(tadpole.keyNavY,tadpole.keyNavX);
-            } else {
-                tadpole.speedAngle = -100;
-            }
-            
-            if(tadpole.speedAngle != -100) {
-                tadpole.speedX += tadpole.standardAcc*Math.cos(tadpole.speedAngle);
-                tadpole.speedY += tadpole.standardAcc*Math.sin(tadpole.speedAngle);
-            }
+                tadpole.addAngle = Math.atan2(tadpole.keyNavY,tadpole.keyNavX);
+                motion_add(tadpole.addAngle,tadpole.standardAcc);
+            } 
         }
         
-        if (tadpole.speedX * (tadpole.speedX - tadpole.friction*Math.cos(tadpole.frictionAngle)) <= 0) tadpole.speedX = 0;
-        else tadpole.speedX -= currFriction*Math.cos(tadpole.frictionAngle);
-        if (tadpole.speedY * (tadpole.speedY - tadpole.friction*Math.sin(tadpole.frictionAngle)) <= 0) tadpole.speedY = 0;
-        else tadpole.speedY -= tadpole.friction*Math.sin(tadpole.frictionAngle);
+        //处理摩擦力
+        if(tadpole.speed>0 && (Math.abs(tadpole.speedX)>0 || Math.abs(tadpole.speedY)>0)) {
+            tadpole.speedAngle = Math.atan2(tadpole.speedY,tadpole.speedX);
+            if (tadpole.speed * (tadpole.speed - tadpole.friction) <= 0) motion_set(0,0);
+            else motion_add(tadpole.speedAngle,-tadpole.friction);
+        } 
+        
+        //--------------物理引擎结束--------------
         
         //更新消息队列
         //负向更新才能splice!!!
@@ -149,6 +166,12 @@ var Tadpole = function() {
         //更新武器
         for (var i=1;i<tadpole.weaponSlot+1;i++) {
             if (tadpole.weapon[i]!=null) tadpole.weapon[i].update(tadpole,model);
+        }
+        
+        //判断死亡
+        if (tadpole.hp<=0) {
+            tadpole.hp = 0;
+            tadpole.die = true;
         }
 	};
 	
@@ -276,6 +299,9 @@ var Tadpole = function() {
 		drawMessages(context);
 	};
     
+    this.onDeath = function(model) {
+        
+    }
 	//判断名字是否为twitter账号
 	var isAuthorized = function() {
 		return tadpole.name.charAt('0') == "@";
