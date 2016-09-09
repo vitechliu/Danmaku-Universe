@@ -80,6 +80,7 @@ var Weapon = function(wSettings,tadpole) {
     
     this.pm.damageAdd = this.damageAdd;
     this.pm.speedAdd = this.speedAdd;
+    this.pm.camp = tadpole.camp;
     
     this.tadpoleFuncWeapon = wSettings.tadpoleFuncWeapon;
     this.xyaFuncDanmaku = wSettings.xyaFuncDanmaku;
@@ -119,7 +120,7 @@ var Weapon = function(wSettings,tadpole) {
         
         //去除消逝弹幕
         for (var i = weapon.danmaku.length-1;i>=0;i--) {
-            weapon.danmaku[i].update();
+            weapon.danmaku[i].update(model);
             if(weapon.danmaku[i].die) weapon.danmaku.splice(i,1);
         }
     }

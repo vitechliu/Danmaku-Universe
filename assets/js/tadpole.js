@@ -1,10 +1,11 @@
-var Tadpole = function() {
+var Tadpole = function(camp) {
 	var tadpole = this;
     
     //全局属性
     this.hpmx = 1000;
     this.hp = 1000;
     this.die = false;
+    this.camp = camp || camp[1];
     
     //AI
     this.AI = null;
@@ -94,7 +95,7 @@ var Tadpole = function() {
     
     this.fire = function(model) {
         for (var i=1;i<tadpole.weaponSlot+1;i++) {
-            if (tadpole.weapon[i]!=null) tadpole.weapon[i].fire(model);
+            if (tadpole.weapon[i]!=null && tadpole.weaponActivated[i]) tadpole.weapon[i].fire(model);
         }
     };
     
@@ -172,6 +173,7 @@ var Tadpole = function() {
         if (tadpole.hp<=0) {
             tadpole.hp = 0;
             tadpole.die = true;
+            tadpole.onDeath(model);
         }
 	};
 	
@@ -234,7 +236,7 @@ var Tadpole = function() {
 	this.draw = function(context) {
         //不透明度 
         //本opacity方程式是 timeSinceLastServerUpdate 从300到+inf 时 opa从1平滑过渡到0.2的方程式
-		var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate-300,1),1),.2).toFixed(3);
+		var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate-300,1),1),.2).toFixed(2);
         
         /* 
         //显示头像
@@ -300,7 +302,11 @@ var Tadpole = function() {
 	};
     
     this.onDeath = function(model) {
-        
+        model.effects.push(new Effect(standardEffect.particles.large,tadpole.x,tadpole.y,0,Math.PI*2));
+    }
+    
+    this.onHit = function() {
+        tadpole.timeSinceLastServerUpdate = 0;
     }
 	//判断名字是否为twitter账号
 	var isAuthorized = function() {
@@ -309,13 +315,13 @@ var Tadpole = function() {
 	
     //画名字
 	var drawName = function(context) {
-        
+        var txt = tadpole.name + " "+ tadpole.hp+"/"+tadpole.hpmx;
 		var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate-300,1),1),.2).toFixed(3);
 		context.fillStyle = 'rgba(226,219,226,'+opacity+')';
-		context.font = 7 + "px 'proxima-nova-1','proxima-nova-2', arial, sans-serif";
+		context.font = 7 + "px '微软雅黑',微软雅黑,'Microsoft YaHei','Microsoft Yahei', arial, sans-serif";
 		context.textBaseline = 'hanging';
-		var width = context.measureText(tadpole.name).width;
-		context.fillText(tadpole.name, tadpole.x - width/2, tadpole.y + 8);
+		var width = context.measureText(txt).width;
+		context.fillText(txt, tadpole.x - width/2, tadpole.y + 8);
 	}
 	
 	var drawMessages = function(context) {

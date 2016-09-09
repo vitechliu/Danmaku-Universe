@@ -12,7 +12,9 @@ var standardDanmaku = {
         },
         color:"rgba(255,255,255,",
         opacity:0.9,
-        maxLife:1000
+        maxLife:1000,
+        penetrable:false,
+        damage:50
     }
 }
 
@@ -29,6 +31,13 @@ var cldPointRectangle = function(px,py,rx,ry,rw,rh,ra) { //矩形x,y指中心点
     if (true) return true;
     else return false;
 }
+var getPEAngle = function(tadpole,x,y) { //返回粒子特效角度
+    var a = Math.atan2(y-tadpole.y,x-tadpole.x);
+    return {
+        start:a-Math.PI/8,
+        end:a+Math.PI/8
+    }
+}
 
 var Danmaku = function(model,dSettings,parameter) {
     //model 弹幕类型 弹幕参数
@@ -42,6 +51,7 @@ var Danmaku = function(model,dSettings,parameter) {
     this.maxLife = dSettings.maxLife;
     this.life = 0;
     this.damageAdd = parameter.damageAdd || 1;
+    this.camp = parameter.camp;
     
     function drawRect(x,y,w,h,a,ctx) {
         ctx.beginPath();
@@ -68,16 +78,40 @@ var Danmaku = function(model,dSettings,parameter) {
             }
             this.speedFunc = dSettings.speedFunc;
             this.angleFunc = dSettings.angleFunc;
-            this.speedAdd = parameter.speedAdd;
-            this.damage = dSettings.damage *= parameter.damageAdd;
+            this.speedAdd = parameter.speedAdd || 1;
+            this.damage = dSettings.damage *= this.damageAdd;
             this.color = dSettings.color;
             this.opacity = dSettings.opacity;
+            this.penetrable = dSettings.penetrable;
         } break;
         default: {} break;
     }
     
+    function whenCollision(tadpole) { //发生碰撞
+        tadpole.hp-= danmaku.damage;
+        var a = getPEAngle(tadpole,danmaku.x,danmaku.y);
+        model.effects.push(new Effect(standardEffect.particles.small,danmaku.x,danmaku.y,a.start,a.end));
+        if(!danmaku.penetrable) danmaku.die = true;
+        tadpole.onHit();
+    }
     
-    this.update = function() {
+    function checkCollision(model) {
+        var collisionX = danmaku.x+0.5*danmaku.width*Math.cos(danmaku.angle)-0.5*danmaku.height*Math.sin(danmaku.angle);
+        var collisionY = danmaku.y+0.5*danmaku.width*Math.sin(danmaku.angle)-0.5*danmaku.height*Math.cos(danmaku.angle);
+        switch(danmaku.camp) {
+            case camp[0]:{ //玩家
+            for (var i in model.tadpoles) 
+                if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
+            } break;
+            case camp[2]:{
+                for (var i in model.tadpoles) 
+                    if (model.tadpoles[i]!= model.tadpoles && model.getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) whenCollision(model.tadpoles[i]);  
+            } break;
+            default: {} break;
+        }
+    }
+    
+    this.update = function(model) {
         danmaku.life++;
         switch(danmaku.type) {
             case "bullet":{
@@ -86,9 +120,14 @@ var Danmaku = function(model,dSettings,parameter) {
                 danmaku.x += danmaku.speed * Math.cos(danmaku.angle);
                 danmaku.y += danmaku.speed * Math.sin(danmaku.angle);
                 
+                
                 //console.log(danmaku.angle);
                 //碰撞检测部分
+                checkCollision(model);
+                
                 /**/
+                //屏幕外子弹删除
+                if (model.getDistance(danmaku.x,danmaku.y,model.userTadpole.x,model.userTadpole.y)>2000) danmaku.die = true;
                 if (danmaku.life == danmaku.maxLife) danmaku.die = true;
             } break;
             default: {} break;
@@ -118,7 +157,7 @@ var Danmaku = function(model,dSettings,parameter) {
 update中写碰撞 碰撞中
 
 [parameter]
-x,y,damageAdd，speedAdd,angle,派别(camp)
+x,y,damageAdd，speedAdd,angle,camp
 
 [dSettings]
 
@@ -138,6 +177,7 @@ type:
 |- angleFunc(time) 子弹方向方程
 |- damage 伤害
 |- maxLife 生存时间
+|- penetrable 穿透
 
 "beam"激光
 

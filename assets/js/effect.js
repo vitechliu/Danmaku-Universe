@@ -20,13 +20,15 @@ var standardEffect = {
         },
         large: {
             type:"particles",
-            particleNum:25,
+            particleNum:35,
             fadeStartTime:25,
             fadeEndTime:170,
             startSpeed:1.5,
             endSpeed:4,
             friction:0.1,
-            minSpeed:0.15
+            minSpeed:0.15,
+            startSize:0.2,
+            endSize:2
         },
     }
 }

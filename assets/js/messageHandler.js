@@ -10,12 +10,12 @@ var MessageHandler = function(model) {
     this.handleMessage = function(msg) {
         var tadpole = model.userTadpole;
         var tested = false;
-        console.log(1);
         $.each(msgType,function(idx,obj) {
             var regexp = obj.pattern;
             if(regexp.test(msg)) {
-                console.log(obj);
                 switch(obj.arg) {
+                    case 4:obj.func(msg.match(regexp)[1],msg.match(regexp)[2],msg.match(regexp)[3],msg.match(regexp)[4]); break;    
+                    case 3:obj.func(msg.match(regexp)[1],msg.match(regexp)[2],msg.match(regexp)[3]); break;
                     case 2:obj.func(msg.match(regexp)[1],msg.match(regexp)[2]); break;
                     case 1:obj.func(msg.match(regexp)[1]); break;
                     default:obj.func();
@@ -53,6 +53,7 @@ var MessageHandler = function(model) {
         messageHandler.popMessage("/register [用户名] [密码]: 注册,请勿使用中文字符作为用户名或密码","info");
         messageHandler.popMessage("/keywasd : 修改基础操作方式为WASD操作","info");
         messageHandler.popMessage("/keyarrow : 修改基础操作方式为方向键操作","info");
+        messageHandler.popMessage("/addEnemy [AI] [数量]: 生成特定AI的敌机","info");
     }
     
     var handleKeyArrow = function() {
@@ -72,6 +73,7 @@ var MessageHandler = function(model) {
     };
     
     var handleSetWeapon = function(place,wp) {
+        var success = true;
         if(model.userTadpole.weaponSlot < place) {
             messageHandler.popMessage("此武器槽尚未开放!","server");
             return;
@@ -79,10 +81,31 @@ var MessageHandler = function(model) {
         try {
             model.userTadpole.weapon[place] = new Weapon(standardWeapon[wp]);
         } catch(e){
-            messageHandler.popMessage("请输入正确的武器名","server");
+            messageHandler.popMessage("请输入正确的武器名!","server");
+            success = false;
+        }
+        if(success) {
+            messageHandler.popMessage("成功装备该武器.","server");
         }
     }
     
+    var handleAddEnemy = function(AIinput,num) {
+        var success = true;
+        try {
+            var AIadd = new AI(standardAI[AIinput]);
+            for (var i=0;i<num;i++) {
+                var radx = Math.random()*300+model.userTadpole.x-150;
+                var rady = Math.random()*300+model.userTadpole.y-150;
+                model.addEnemy(AIadd,radx,rady,camp[2],null,"testObject");
+            }
+        } catch(e) {
+            messageHandler.popMessage("请输入正确的AI!","server");
+            success = false;
+        } 
+        if(success) {
+            messageHandler.popMessage("生成了敌机.","server");
+        }
+    }
     //指令对应表
     var msgType = [{
         pattern:/^\/setname (\S+)$/i,
@@ -108,6 +131,10 @@ var MessageHandler = function(model) {
         pattern:/^\/setweapon ([1-4]) (\S+)$/i,
         arg:2,
         func:handleSetWeapon
+    },{
+        pattern:/^\/addEnemy (\S+) ([1-9]\d*)$/i,
+        arg:2,
+        func:handleAddEnemy
     }];
     
     

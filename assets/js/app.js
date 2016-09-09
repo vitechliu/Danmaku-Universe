@@ -75,7 +75,12 @@ var App = function(aCanvas) {
         for (id in model.tadpoles) {
             model.tadpoles[id].update(mouse,model);
         }
-
+        
+        for (var i = model.tadpoles.length-1;i>=0;i--) {
+            model.tadpoles[i].update(mouse,model);
+            if(model.tadpoles[i].die) model.tadpoles.splice(i,1);
+        }
+        
         //更新特效
         for (var i = model.effects.length-1;i>=0;i--) {
             model.effects[i].update();
@@ -323,12 +328,11 @@ var App = function(aCanvas) {
         model = new Model();
         //model.settings = aSettings;
 
-        model.userTadpole = new Tadpole();
+        model.userTadpole = new Tadpole(camp[0]);
         model.userTadpole.id = -1;
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
-        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_Tripple,model.userTadpole);
-        model.userTadpole.camp = camp[0]; //设立阵营
+        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_I,model.userTadpole);
         
         //添加水粒子
         
@@ -356,15 +360,19 @@ var App = function(aCanvas) {
         
         //添加敌人函数(测试)
         
-        model.addEnemy = function(AI,x,y,camp,wp) {
-            var t = new Tadpole();
+        model.addEnemy = function(AI,x,y,camp,wp,name) {
+            var t = new Tadpole(camp);
             t.AI = AI;
-            t.x = x;
-            t.y = y;
-            t.camp = camp;
-            t.weapon[1] = wp;
+            t.x = x || 0;
+            t.y = y || 0;
+            t.weapon[1] = wp || null;
+            t.name = name || "testObject";
             model.tadpoles.push(t);
         }
+        
+        //----------------
+        model.addEnemy(new AI(standardAI.enemy_tadpole_idle),0,0,camp[2],null,"test1");
+        //----------------
         //model全局判断附近敌人数量
         model.getEnemyNum = function(self,radius) {
             var num = -1;
@@ -388,12 +396,12 @@ var App = function(aCanvas) {
             switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
-                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) enemy.push(tadpoles[i]);
+                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
                     return enemy;
                 } break;
                 case camp[2]:{
                     for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) enemy.push(tadpoles[i]);
+                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
                     return enemy;
                 } break;
                 default: {return enemy;} break;
@@ -406,16 +414,16 @@ var App = function(aCanvas) {
             switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
-                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=d) {
-                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y);
+                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {
+                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
                             enemy = model.tadpoles[i];
                         }
                     return enemy;
                 } break;
                 case camp[2]:{
                     for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=d) {   
-                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y);
+                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {   
+                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
                             enemy = model.tadpoles[i];
                         }             
                     return enemy;
