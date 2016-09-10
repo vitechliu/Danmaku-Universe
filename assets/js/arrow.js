@@ -13,6 +13,7 @@ var Arrow = function(tadpole, camera) {
 	this.opacity = 1;
 	
 	this.update = function() {
+        if (arrow.tadpole)
 		arrow.angle = Math.atan2(tadpole.y - arrow.camera.y, tadpole.x - arrow.camera.x);
 	};
 	

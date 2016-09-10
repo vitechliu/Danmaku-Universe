@@ -16,8 +16,15 @@
 
   <canvas id="canvas"></canvas> 
   <div id="ui"> 
-   <div id="fps"></div> <!-- FPS显示 -->
-   <div id="chatBox">
+   <div id="statusBox" class="uiBox">
+    <div id="fps"></div> <!-- FPS显示 -->
+    <div id="hp">
+        <div id="hpBarText"></div>
+        <div id="hpBarBorder"></div>
+        <div id="hpBar"></div>
+    </div>
+   </div>
+   <div id="chatBox" class="uiBox"> <!--左下角聊天框 -->
     <div id="infoBox" class="mCustomScrollbar" data-mcs-axis="y" data-mcs-theme="minimal">
     <span class="info-info">[Info]欢迎试玩游戏测试版,输入/help查看详细指令列表</span><br>
     <span class="info-info">--------------------------------------------------</span><br>
@@ -60,7 +67,7 @@
     
 <script src="assets/js/lib/parseUri.js"></script> 
 <script src="assets/js/lib/modernizr-1.5.min.js"></script>
-<script src="assets/js/lib/stats.js"></script>
+<script src="assets/js/lib/stats.min.js"></script>
     
 <script src="assets/js/app.js"></script>
 <script src="assets/js/model.js"></script>

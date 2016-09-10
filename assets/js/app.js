@@ -36,10 +36,18 @@ var App = function(aCanvas) {
         y: 0
     },
     
-    messageQuota = 5 //消息限制数量(最高5个，每50帧回复1个)
-    ;
+    messageQuota = 5; //消息限制数量(最高5个，每50帧回复1个)
+
+
 
     app.update = function() {
+        stats.begin();
+        //更新UI！！
+        $("#hpBar").css("width",Math.floor(200*model.userTadpole.hp/model.userTadpole.hpmx)+"px");
+        $("#hpBarText").text("Hp: "+model.userTadpole.hp.toFixed(1)+" / "+model.userTadpole.hpmx);
+        
+        
+        //----
         //每隔50帧能发个消息
         if (messageQuota < 5 && model.userTadpole.age % 50 == 0) {
             messageQuota++;
@@ -89,7 +97,7 @@ var App = function(aCanvas) {
         for (i in model.decoStars) {
             model.decoStars[i].update(model.camera.getOuterBounds(), model.camera.zoom);
         }
-
+        
 
         //武器在tadpole.update中更新
     };
@@ -322,6 +330,7 @@ var App = function(aCanvas) {
         //主机设定与添加
         var userT = {};
         userT.camp = camp[0];
+        userT.hpRegen = 0.01;
         
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;

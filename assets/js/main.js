@@ -6,10 +6,16 @@ var timeout = 0;
 var has_set_timeout = 0;
 var authWindow;
 
+var stats = new Stats();
+stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.getElementById("fps").appendChild( stats.dom );
+
 var app;
 var runLoop = function() {
+    stats.begin();
 	app.update();
 	app.draw();
+    stats.end();
     window.requestAnimFrame(runLoop);
 }
 
@@ -63,27 +69,7 @@ if(Modernizr.canvas && Modernizr.websockets) {
 }
 
 //加入FPS
-var addStats = function() { 
-	if (isStatsOn) { return; }
-	// Draw fps
-	var stats = new Stats();
-	document.getElementById('fps').appendChild(stats.domElement);
 
-	setInterval(function () {
-	    stats.update();
-	}, 1000/60);
-
-	// Array Remove - By John Resig (MIT Licensed)
-	Array.remove = function(array, from, to) {
-	  var rest = array.slice((to || from) + 1 || array.length);
-	  array.length = from < 0 ? array.length + from : from;
-	  return array.push.apply(array, rest);
-	};
-	isStatsOn = true;
-}
-
-
-if(debug) { addStats(); }
 
 //新窗口打开
 $(function() {

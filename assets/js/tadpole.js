@@ -4,9 +4,10 @@ var Tadpole = function(tSettings) {
     //全局属性
     this.hpmx = tSettings.hp || 1000;
     this.hp = tSettings.hp || 1000;
+    this.hpRegen = tSettings.hpRegen || 0;
     this.die = false;
     this.camp = tSettings.camp || camp[1];
-
+    
     //AI
     this.AI = tSettings.AI || null;
 
@@ -111,7 +112,7 @@ var Tadpole = function(tSettings) {
         tadpole.timeSinceLastServerUpdate++;
 
         tadpole.age++;
-
+        
         //AIupdate
         if (tadpole.AI != null) {
             var condition = {};
@@ -178,6 +179,7 @@ var Tadpole = function(tSettings) {
             tadpole.die = true;
             tadpole.onDeath(model);
         }
+        tadpole.hp += (tadpole.hp<tadpole.hpmx) ? tadpole.hpRegen : 0;
 
     };
 
@@ -333,7 +335,7 @@ var Tadpole = function(tSettings) {
         context.restore();
     }
     var drawName = function(context) {
-        var txt = tadpole.name + " " + tadpole.hp + "/" + tadpole.hpmx;
+        var txt = tadpole.name;
         var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate - 300, 1), 1), .2).toFixed(3);
         context.fillStyle = 'rgba(226,219,226,' + opacity + ')';
         context.font = 7 + "px '微软雅黑',微软雅黑,'Microsoft YaHei','Microsoft Yahei', arial, sans-serif";
