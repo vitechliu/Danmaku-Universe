@@ -50,6 +50,32 @@ var standardWeapon = {
               x:x,y:y,a:a+Math.PI*(n-1)/40
             };
         }
+    },
+    enemy_I:{
+        name:"Enemy Laser I",
+        hasSprites:false,
+        isDesigned:false,
+        isRandomed:false,
+        type:1,
+        frequency:240,
+        danmakuType:standardDanmaku.standard_I,
+        counterShield:false,
+        speedAdd:1,
+        damageAdd:0.1,
+        num:1,
+        tadpoleFuncWeapon:function(tadpole) {
+            var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
+            var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
+            var wa = tadpole.angle;
+            return {
+              x:wx,y:wy,a:wa  
+            };
+        },
+        xyaFuncDanmaku:function(x,y,a,n) {
+            return {
+              x:x,y:y,a:a
+            };
+        }
     }
 };
 
@@ -95,6 +121,7 @@ var Weapon = function(wSettings,tadpole) {
     }
 
     this.update = function(tadpole,model) {
+        
         //更新x,y,angle
         var wpm = weapon.tadpoleFuncWeapon(tadpole);
         weapon.x = wpm.x;

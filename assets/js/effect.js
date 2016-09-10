@@ -28,9 +28,18 @@ var standardEffect = {
             friction:0.1,
             minSpeed:0.15,
             startSize:0.2,
-            endSize:2
+            endSize:2,
+            blur:6
         },
     }
+}
+var randRange = function(eStart,eEnd) { //随机从start到End
+        return Math.random()*(eEnd-eStart)+eStart;
+    }
+    
+    
+var randPoint = function(eTarget,eRange) { //eTarget±eTarget*eRange
+        return Math.random()*(2*eTarget*eRange)+eTarget-eRange*eTarget;
 }
 
 var Effect  = function (eSettings,x,y,startAngle,endAngle) {
@@ -38,15 +47,6 @@ var Effect  = function (eSettings,x,y,startAngle,endAngle) {
     var type = eSettings.type;
     this.type = eSettings.type;
     this.die = false;
-    
-    var randRange = function(eStart,eEnd) { //随机从start到End
-        return Math.random()*(eEnd-eStart)+eStart;
-    }
-    
-    
-    var randPoint = function(eTarget,eRange) { //eTarget±eTarget*eRange
-        return Math.random()*(2*eTarget*eRange)+eTarget-eRange*eTarget;
-    }
     
     var setParticleOpacity = function(tStart,life,tEnd) { //三角函数
         return 0.5*(Math.cos(Math.PI*(life-tStart)/(tEnd-tStart))+1);

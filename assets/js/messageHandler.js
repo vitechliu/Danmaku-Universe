@@ -79,8 +79,9 @@ var MessageHandler = function(model) {
             return;
         }
         try {
-            model.userTadpole.weapon[place] = new Weapon(standardWeapon[wp]);
+            model.userTadpole.weapon[place] = new Weapon(standardWeapon[wp],model.userTadpole);
         } catch(e){
+            console.log(e);
             messageHandler.popMessage("请输入正确的武器名!","server");
             success = false;
         }
@@ -92,13 +93,20 @@ var MessageHandler = function(model) {
     var handleAddEnemy = function(AIinput,num) {
         var success = true;
         try {
-            var AIadd = new AI(standardAI[AIinput]);
+            var AIadd = standardAI[AIinput];
             for (var i=0;i<num;i++) {
-                var radx = Math.random()*300+model.userTadpole.x-150;
-                var rady = Math.random()*300+model.userTadpole.y-150;
-                model.addEnemy(AIadd,radx,rady,camp[2],null,"testObject");
+                var rs = {};
+                rs.x = Math.random()*300+model.userTadpole.x-150;
+                rs.y = Math.random()*300+model.userTadpole.y-150;
+                rs.camp = camp[2];
+                rs.speedMax = 1;
+                rs.standardAcc = 0.25;
+                rs.friction =0.05
+                rs.AI = new AI(AIadd);
+                model.addEnemy(rs,standardWeapon.standard_I,"testObject");
             }
         } catch(e) {
+            console.log(e);
             messageHandler.popMessage("请输入正确的AI!","server");
             success = false;
         } 

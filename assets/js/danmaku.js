@@ -5,7 +5,7 @@ var standardDanmaku = {
         height:1,
         width:3,
         speedFunc:function(time) {
-            return 5;
+            return 8;
         },
         angleFunc:function(defaultAngle,time) {
             return defaultAngle;
@@ -79,7 +79,7 @@ var Danmaku = function(model,dSettings,parameter) {
             this.speedFunc = dSettings.speedFunc;
             this.angleFunc = dSettings.angleFunc;
             this.speedAdd = parameter.speedAdd || 1;
-            this.damage = dSettings.damage *= this.damageAdd;
+            this.damage = dSettings.damage * this.damageAdd;
             this.color = dSettings.color;
             this.opacity = dSettings.opacity;
             this.penetrable = dSettings.penetrable;
@@ -105,7 +105,7 @@ var Danmaku = function(model,dSettings,parameter) {
             } break;
             case camp[2]:{
                 for (var i in model.tadpoles) 
-                    if (model.tadpoles[i]!= model.tadpoles && model.getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) whenCollision(model.tadpoles[i]);  
+                    if (model.tadpoles[i]!= model.tadpoles && model.getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
             } break;
             default: {} break;
         }

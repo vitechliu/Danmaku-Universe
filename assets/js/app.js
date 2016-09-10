@@ -1,8 +1,10 @@
 //Setting.js 部分
+/*
 var Settings = function() {
     var domain_arr = ['workerman.net'];
     this.socketServer = 'ws://' + domain_arr[Math.floor(Math.random() * domain_arr.length + 1) - 1] + ':8280';
 }
+*/
 
 var camp = []; //阵营
 camp[0] = "user";
@@ -47,20 +49,7 @@ var App = function(aCanvas) {
         var mvp = getMouseWorldPosition();
         mouse.worldx = mvp.x;
         mouse.worldy = mvp.y;
-        model.userTadpole.userUpdate(model.tadpoles, mouse.worldx, mouse.worldy);
-        
-        /*
-        if (keyNav.x != 0 || keyNav.y != 0) { //如果键盘有操作
-            //键盘
-            model.userTadpole.userUpdate(model.tadpoles, model.userTadpole.x + keyNav.x, model.userTadpole.y + keyNav.y);
-        } else {
-            //鼠标
-            var mvp = getMouseWorldPosition();
-            mouse.worldx = mvp.x;
-            mouse.worldy = mvp.y;
-            model.userTadpole.userUpdate(model.tadpoles, mouse.worldx, mouse.worldy);
-        }
-        */
+        model.userTadpole.userUpdate(mouse.worldx, mouse.worldy,null);
         
         //待弄懂
         if (model.userTadpole.age % 6 == 0 && model.userTadpole.changed > 1) {
@@ -72,13 +61,22 @@ var App = function(aCanvas) {
         model.camera.update(model);
 
         //更新主机
-        for (id in model.tadpoles) {
-            model.tadpoles[id].update(mouse,model);
+        model.userTadpole.update(mouse,model);
+        
+        //更新箭头
+        for (i in model.arrows) {
+            var cameraBounds = model.camera.getBounds();
+            var arrow = model.arrows[i];
+            arrow.update();
         }
         
+        //更新其他机体
         for (var i = model.tadpoles.length-1;i>=0;i--) {
             model.tadpoles[i].update(mouse,model);
-            if(model.tadpoles[i].die) model.tadpoles.splice(i,1);
+            if(model.tadpoles[i].die) {
+                model.tadpoles.splice(i,1);
+                model.arrows.splice(i,1);
+            }
         }
         
         //更新特效
@@ -92,13 +90,7 @@ var App = function(aCanvas) {
             model.decoStars[i].update(model.camera.getOuterBounds(), model.camera.zoom);
         }
 
-        //更新箭头
-        for (i in model.arrows) {
-            var cameraBounds = model.camera.getBounds();
-            var arrow = model.arrows[i];
-            arrow.update();
-        }
-        
+
         //武器在tadpole.update中更新
     };
 
@@ -196,7 +188,7 @@ var App = function(aCanvas) {
         if (model.userTadpole && e.which == 1) {
             //如果存在己方蝌蚪 同时是左键，就加上动量
             //鼠标左键点击(弹幕)
-            model.userTadpole.fire(model);
+            model.userTadpole.onFire = true;
             
             //model.effects.push(new Effect(standardEffect.particles.large));
             //console.log(model.effects);
@@ -326,21 +318,22 @@ var App = function(aCanvas) {
         resizeCanvas();
 
         model = new Model();
-        //model.settings = aSettings;
-
-        model.userTadpole = new Tadpole(camp[0]);
+        
+        //主机设定与添加
+        var userT = {};
+        userT.camp = camp[0];
+        
+        model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
+        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_I,model.userTadpole);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
-        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_I,model.userTadpole);
-        
         //添加水粒子
-        
         model.decoStars = [];
-        
         for (var i = 0; i < 400; i++) {
             model.decoStars.push(new DecoStars());
         }
+        
         //添加特效
         model.effects = [];
             
@@ -348,7 +341,7 @@ var App = function(aCanvas) {
         model.camera = new Camera(canvas, context, model.userTadpole.x, model.userTadpole.y);
         
         //箭头初始化
-        model.arrows = {};
+        model.arrows = [];
         
         //消息处理
         messageHandler = new MessageHandler(model);
@@ -360,31 +353,40 @@ var App = function(aCanvas) {
         
         //添加敌人函数(测试)
         
-        model.addEnemy = function(AI,x,y,camp,wp,name) {
-            var t = new Tadpole(camp);
-            t.AI = AI;
-            t.x = x || 0;
-            t.y = y || 0;
-            t.weapon[1] = wp || null;
-            t.name = name || "testObject";
+        model.addEnemy = function(settings,wp,name) {
+            var t = new Tadpole(settings);
+            if (wp!=null) t.weapon[1] = new Weapon(wp,t);
             model.tadpoles.push(t);
+            
+            model.arrows[$.inArray(t,model.tadpoles)] = new Arrow(t, model.camera);
         }
         
         //----------------
-        model.addEnemy(new AI(standardAI.enemy_tadpole_idle),0,0,camp[2],null,"test1");
+        var st = {};
+        st.x = 0;
+        st.y = 0;
+        st.AI = new AI(standardAI.enemy_floating);
+        st.name = "testFloating";
+        st.camp = camp[2];
+        st.speedMax = 1;
+        st.standardAcc = 0.25;
+        st.friction =0.05;
+        
+        model.addEnemy(st,standardWeapon.enemy_I,"testGuard");
         //----------------
         //model全局判断附近敌人数量
         model.getEnemyNum = function(self,radius) {
-            var num = -1;
+            var radius = radius || 1000;
+            var num = 0;
             switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
-                        if (model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) num++;
+                        if (model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
                     return num;
                 } break;
                 case camp[2]:{
                     for (var i in model.tadpoles) 
-                        if (model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles.y)<=radius) num++;
+                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
                     return num;
                 } break;
                 default: {return 0;} break;

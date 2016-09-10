@@ -1,185 +1,188 @@
-var Tadpole = function(camp) {
-	var tadpole = this;
-    
+var Tadpole = function(tSettings) {
+    var tadpole = this;
+
     //全局属性
-    this.hpmx = 1000;
-    this.hp = 1000;
+    this.hpmx = tSettings.hp || 1000;
+    this.hp = tSettings.hp || 1000;
     this.die = false;
-    this.camp = camp || camp[1];
-    
+    this.camp = tSettings.camp || camp[1];
+
     //AI
-    this.AI = null;
-    
-	//初始位置随机 300*300矩形内
-	this.x = Math.random() * 300 - 150;
-	this.y = Math.random() * 300 - 150;
+    this.AI = tSettings.AI || null;
+
+    //初始位置随机 300*300矩形内
+    this.x = tSettings.x || Math.random() * 300 - 150;
+    this.y = tSettings.y || Math.random() * 300 - 150;
     this.z = 100; //频道
-    
     //圆的半径
-	this.size = 6;
+    this.size = tSettings.size || 6;
     //默认主炮塔绘制参数
-    this.headSize = 2;
-    this.headAngle = Math.PI * 0.14;
-    this.headDistance = 1.5;
-	
-	this.name = '';
-	this.age = 0;
-	//this.sex = -1;
-	//this.icon = '/images/default.png'; //头像
-	//this.img = {};
-	
+    this.headSize = tSettings.headSize || 2;
+    this.headAngle = tSettings.headAngle || Math.PI * 0.14;
+    this.headDistance = tSettings.headDistance || 1.5;
+
+    this.name = tSettings.name || "";
+    this.age = 0;
+    //this.sex = -1;
+    //this.icon = '/images/default.png'; //头像
+    //this.img = {};
     //是否有鼠标经过
-	this.hover = false;
-    
+    this.hover = false;
+
     //主机炮塔朝向(与鼠标一致)
-	this.angle = Math.PI * 2;
-    
+    this.angle = Math.PI * 2;
     //武器
     this.weapon = [];
     this.weapon[1] = null;
     this.weapon[2] = null;
     this.weapon[3] = null;
     this.weapon[4] = null;
-    
+
     //武器是否激活
     this.weaponActivated = [];
     this.weaponActivated[1] = true;
     this.weaponActivated[2] = true;
     this.weaponActivated[3] = true;
     this.weaponActivated[4] = true;
-    
+
     //开放武器槽
     this.weaponSlot = 2;
-    
+
     //主机转体速度 (>1) 越小越快
     this.turningSpeed = 5;
-    
-	this.speed = 0;
+
+    this.speed = 0;
     this.speedX = 0;
     this.speedY = 0;
     this.speedAngle = 0; //全局速度方向
     this.addAngle = 0; //加速时加速的方向
-    this.speedMax = 3; // 最大速度
-    
-    this.friction = 0.15; // 摩擦力
-    this.standardAcc = 0.45; // 驱动加速度
-	
+    this.speedMax = tSettings.speedMax || 3; // 最大速度
+    this.friction = tSettings.friction || 0.15; // 摩擦力
+    this.standardAcc = tSettings.standardAcc || 0.45; // 驱动加速度
     this.keyNavX = 0;
     this.keyNavY = 0;
-    
+
     //是否纯键盘控制
     this.noMouse = 0;
-    
+
     //消息
-	this.messages = [];
-    
+    this.messages = [];
+
+    //是否处于开火状态
+    this.onFire = false;
+
     //不活动时间
-	//this.timeSinceLastActivity = 0;
-	
+    //this.timeSinceLastActivity = 0;
     //是否改变
-	this.changed = 0;
-    
-    function motion_add(dir,speed) {
-        tadpole.speedX += speed*Math.cos(dir);
-        tadpole.speedY += speed*Math.sin(dir);
-        tadpole.speed = Math.sqrt(tadpole.speedX*tadpole.speedX+tadpole.speedY*tadpole.speedY);
+    this.changed = 0;
+
+    function motion_add(dir, speed) {
+        tadpole.speedX += speed * Math.cos(dir);
+        tadpole.speedY += speed * Math.sin(dir);
+        tadpole.speed = Math.sqrt(tadpole.speedX * tadpole.speedX + tadpole.speedY * tadpole.speedY);
     }
-    
-    function motion_set(dir,speed){
+
+    this.motion_add = motion_add;
+
+    function motion_set(dir, speed) {
         tadpole.speed = speed;
-        tadpole.speedX = speed*Math.cos(dir);
-        tadpole.speedY = speed*Math.sin(dir);
+        tadpole.speedX = speed * Math.cos(dir);
+        tadpole.speedY = speed * Math.sin(dir);
     }
+    this.motion_set = motion_set;
     //无服务器加载时间
-	this.timeSinceLastServerUpdate = 0;
-    
+    this.timeSinceLastServerUpdate = 0;
+
     this.fire = function(model) {
-        for (var i=1;i<tadpole.weaponSlot+1;i++) {
-            if (tadpole.weapon[i]!=null && tadpole.weaponActivated[i]) tadpole.weapon[i].fire(model);
+        for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
+            if (tadpole.weapon[i] != null && tadpole.weaponActivated[i]) tadpole.weapon[i].fire(model);
         }
+        tadpole.timeSinceLastServerUpdate = 0;
     };
-    
+
     this.cease = function() {
-        for (var i=1;i<tadpole.weaponSlot+1;i++) {
-            if (tadpole.weapon[i]!=null) tadpole.weapon[i].cease();
+        tadpole.onFire = false;
+        for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
+            if (tadpole.weapon[i] != null) tadpole.weapon[i].cease();
         }
     };
-    
-	this.update = function(mouse,model) {
-		tadpole.timeSinceLastServerUpdate++;
-        
+
+    this.update = function(mouse, model) {
+        tadpole.timeSinceLastServerUpdate++;
+
         tadpole.age++;
-        
+
         //AIupdate
-        if(tadpole.AI != null) {
+        if (tadpole.AI != null) {
             var condition = {};
-            condition.enemyNum = model.getEnemyNum(tadpole,tadpole.AI.vision);
-            condition.closeEnemy = model.getEnemyNum(tadpole,tadpole.AI.vision);
-            tadpole.AI.update(tadpole,condition);
+            condition.enemyNum = model.getEnemyNum(tadpole, tadpole.AI.vision);
+            condition.closeEnemy = model.getCloseEnemy(tadpole, tadpole.AI.vision);
+            tadpole.AI.update(tadpole, condition);
         }
 
         //--------------物理引擎开始--------------
         //更新位置
         tadpole.x += tadpole.speedX;
         tadpole.y += tadpole.speedY;
-        
-        
-        if(tadpole.AI == null && tadpole.speed < tadpole.speedMax ) {
-            if(tadpole.keyNavX !=0 || tadpole.keyNavY !=0) {
-                tadpole.addAngle = Math.atan2(tadpole.keyNavY,tadpole.keyNavX);
-                motion_add(tadpole.addAngle,tadpole.standardAcc);
-            } 
+
+        if (tadpole.AI == null && tadpole.speed < tadpole.speedMax) {
+            if (tadpole.keyNavX != 0 || tadpole.keyNavY != 0) {
+                tadpole.addAngle = Math.atan2(tadpole.keyNavY, tadpole.keyNavX);
+                motion_add(tadpole.addAngle, tadpole.standardAcc);
+            }
         }
-        
+
         //处理摩擦力
-        if(tadpole.speed>0 && (Math.abs(tadpole.speedX)>0 || Math.abs(tadpole.speedY)>0)) {
-            tadpole.speedAngle = Math.atan2(tadpole.speedY,tadpole.speedX);
-            if (tadpole.speed * (tadpole.speed - tadpole.friction) <= 0) motion_set(0,0);
-            else motion_add(tadpole.speedAngle,-tadpole.friction);
-        } 
-        
+        if (tadpole.speed > 0 && (Math.abs(tadpole.speedX) > 0 || Math.abs(tadpole.speedY) > 0)) {
+            tadpole.speedAngle = Math.atan2(tadpole.speedY, tadpole.speedX);
+            if (tadpole.speed * (tadpole.speed - tadpole.friction) <= 0) motion_set(0, 0);
+            else motion_add(tadpole.speedAngle, -tadpole.friction);
+
+            tadpole.timeSinceLastServerUpdate = 0;
+        }
+
         //--------------物理引擎结束--------------
-        
         //更新消息队列
         //负向更新才能splice!!!
-		for (var i = tadpole.messages.length - 1; i >= 0; i--) {
-			var msg = tadpole.messages[i];
-			msg.update();
-			
-			if(msg.age == msg.maxAge) {
-				tadpole.messages.splice(i,1);
-			}
-		}
+        for (var i = tadpole.messages.length - 1; i >= 0; i--) {
+            var msg = tadpole.messages[i];
+            msg.update();
 
-		// 如果鼠标悬浮在主机上，就把hover为true，同时更新mouse.tadpole
-		if(Math.sqrt(Math.pow(tadpole.x - mouse.worldx,2) + Math.pow(tadpole.y - mouse.worldy,2)) < tadpole.size+2) {
-			tadpole.hover = true;
-			mouse.tadpole = tadpole;
-		}
-		else {
-            //否则置hover为false
-			tadpole.hover = false;
-		}
-        
-        //更新尾巴
-		//tadpole.tail.update();
-        
-        //更新武器
-        for (var i=1;i<tadpole.weaponSlot+1;i++) {
-            if (tadpole.weapon[i]!=null) tadpole.weapon[i].update(tadpole,model);
+            if (msg.age == msg.maxAge) {
+                tadpole.messages.splice(i, 1);
+            }
         }
-        
+
+        // 如果鼠标悬浮在主机上，就把hover为true，同时更新mouse.tadpole
+        if (Math.sqrt(Math.pow(tadpole.x - mouse.worldx, 2) + Math.pow(tadpole.y - mouse.worldy, 2)) < tadpole.size + 2) {
+            tadpole.hover = true;
+            mouse.tadpole = tadpole;
+        } else {
+            //否则置hover为false
+            tadpole.hover = false;
+        }
+
+        //更新尾巴
+        //tadpole.tail.update();
+        //更新武器
+        for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
+            if (tadpole.weapon[i] != null) tadpole.weapon[i].update(tadpole, model);
+        }
+
+        //开火
+        if (tadpole.onFire) tadpole.fire(model);
+
         //判断死亡
-        if (tadpole.hp<=0) {
+        if (tadpole.hp <= 0) {
             tadpole.hp = 0;
             tadpole.die = true;
             tadpole.onDeath(model);
         }
-	};
-	
+
+    };
+
     //如果认证了,点击出twitter地址
-    
-	this.onclick = function(e) {
+    this.onclick = function(e) {
         /*
 		if(e.ctrlKey && e.which == 1) {
 			if(isAuthorized() && tadpole.hover) {
@@ -194,50 +197,48 @@ var Tadpole = function(camp) {
 		}
         */
         return false;
-	};
-	
-    
-    //更新
-	this.userUpdate = function(tadpoles, angleTargetX, angleTargetY) {
-		
-		
+    };
+
+    //更新朝向(过渡)
+    this.userUpdate = function(angleTargetX, angleTargetY, angleTarget) {
         var prevState = {
-			angle: tadpole.angle,
-		}
-		// 定义anglediff(下一次要转的度数) 
-        // Angle to targetx and targety (mouse position)
-		var anglediff = ((Math.atan2(angleTargetY - tadpole.y, angleTargetX - tadpole.x)) - tadpole.angle);
+            angle: tadpole.angle,
+        }
+        
+        if (angleTarget == null) {
+            // 定义anglediff(下一次要转的度数) 
+            // Angle to targetx and targety (mouse position)
+            var anglediff = ((Math.atan2(angleTargetY - tadpole.y, angleTargetX - tadpole.x)) - tadpole.angle);
+        } else {
+            var anglediff = angleTarget - tadpole.angle;
+        }
         
         //将要转的度数投影到-2pi到2pi之间
-		while(anglediff < -Math.PI) {
-			anglediff += Math.PI * 2;
-		}
-		while(anglediff > Math.PI) {
-			anglediff -= Math.PI * 2;
-		}
-		
+        while (anglediff < -Math.PI) {
+            anglediff += Math.PI * 2;
+        }
+        while (anglediff > Math.PI) {
+            anglediff -= Math.PI * 2;
+        }
+
         //平滑转体
-		tadpole.angle += anglediff / tadpole.turningSpeed;
-		
-		
+        tadpole.angle += anglediff / tadpole.turningSpeed;
+
         //changed加上改变角度的3倍加上主机的动量
         //这里以转向来判断主机是否还在更新
-		tadpole.changed += Math.abs((prevState.angle - tadpole.angle)*3) + tadpole.speed;
-		
-        
+        tadpole.changed += Math.abs((prevState.angle - tadpole.angle) * 3) + tadpole.speed;
+
         //如果主机更新了
-		if(tadpole.changed > 1) {
-			this.timeSinceLastServerUpdate = 0;
-		}
-        
-	};
-	
-    
-	this.draw = function(context) {
+        if (tadpole.changed > 1) {
+            this.timeSinceLastServerUpdate = 0;
+        }
+    };
+
+    this.draw = function(context) {
         //不透明度 
         //本opacity方程式是 timeSinceLastServerUpdate 从300到+inf 时 opa从1平滑过渡到0.2的方程式
-		var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate-300,1),1),.2).toFixed(2);
-        
+        var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate - 300, 1), 1), .2).toFixed(2);
+
         /* 
         //显示头像
 		if(tadpole.hover) {
@@ -255,83 +256,100 @@ var Tadpole = function(camp) {
 		}
 		
         */
-        
-        context.fillStyle = 'rgba(226,219,226,'+opacity+')';
-        
+
+        context.fillStyle = 'rgba(226,219,226,' + opacity + ')';
+
         //投影(发光),6大小的模糊,颜色白色70%透明
-		context.shadowOffsetX = 0;
-		context.shadowOffsetY = 0;
-		context.shadowBlur    = 6;
-		context.shadowColor   = 'rgba(255, 255, 255, '+opacity*0.7+')';
-		
-		//画圆
-		context.beginPath();
-        context.arc(tadpole.x, tadpole.y, tadpole.size, 0, Math.PI * 2, true); 
-		//context.arc(tadpole.x, tadpole.y, tadpole.size, tadpole.angle + Math.PI * 2.7, tadpole.angle + Math.PI * 1.3, true); 
-		
-        
-        //画尾巴
-		//tadpole.tail.draw(context);
-		
-		context.closePath();
-		context.fill();
-		
-        //画三角头
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 0;
+        context.shadowBlur = 6;
+        context.shadowColor = getCampColor() + opacity * 0.7 + ')';
+
+        //画圆
         context.beginPath();
-        
-        context.moveTo(tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle),tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle));
-		context.lineTo(tadpole.x+(tadpole.size+tadpole.headDistance)*Math.cos(tadpole.angle-tadpole.headAngle),tadpole.y+(tadpole.size+tadpole.headDistance)*Math.sin(tadpole.angle-tadpole.headAngle));
-        context.lineTo(tadpole.x+(tadpole.size+tadpole.headDistance)*Math.cos(tadpole.angle+tadpole.headAngle),tadpole.y+(tadpole.size+tadpole.headDistance)*Math.sin(tadpole.angle+tadpole.headAngle));
-        
+        context.arc(tadpole.x, tadpole.y, tadpole.size, 0, Math.PI * 2, true);
         context.closePath();
         context.fill();
-        
+
+        //画三角头
+        context.beginPath();
+
+        context.moveTo(tadpole.x + (tadpole.size + tadpole.headDistance + tadpole.headSize) * Math.cos(tadpole.angle), tadpole.y + (tadpole.size + tadpole.headDistance + tadpole.headSize) * Math.sin(tadpole.angle));
+        context.lineTo(tadpole.x + (tadpole.size + tadpole.headDistance) * Math.cos(tadpole.angle - tadpole.headAngle), tadpole.y + (tadpole.size + tadpole.headDistance) * Math.sin(tadpole.angle - tadpole.headAngle));
+        context.lineTo(tadpole.x + (tadpole.size + tadpole.headDistance) * Math.cos(tadpole.angle + tadpole.headAngle), tadpole.y + (tadpole.size + tadpole.headDistance) * Math.sin(tadpole.angle + tadpole.headAngle));
+
+        context.closePath();
+        context.fill();
+
         //画尾巴
-		//tadpole.tail.draw(context);
-		
+        //tadpole.tail.draw(context);
         //画武器
-        for (var i=1;i<tadpole.weaponSlot+1;i++) {
-            if (tadpole.weapon[i]!=null) tadpole.weapon[i].draw(context);
+        for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
+            if (tadpole.weapon[i] != null) tadpole.weapon[i].draw(context);
         }
-        
-		context.shadowBlur = 0;
-		context.shadowColor   = '';
-		
-		drawName(context);
-		drawMessages(context);
-	};
-    
+
+        context.shadowBlur = 0;
+        context.shadowColor = '';
+
+        drawName(context);
+        drawMessages(context);
+        drawHp(context);
+    };
+
     this.onDeath = function(model) {
-        model.effects.push(new Effect(standardEffect.particles.large,tadpole.x,tadpole.y,0,Math.PI*2));
+        model.effects.push(new Effect(standardEffect.particles.large, tadpole.x, tadpole.y, 0, Math.PI * 2));
     }
-    
+
     this.onHit = function() {
         tadpole.timeSinceLastServerUpdate = 0;
     }
-	//判断名字是否为twitter账号
-	var isAuthorized = function() {
-		return tadpole.name.charAt('0') == "@";
-	};
-	
+    //判断名字是否为twitter账号
+    var isAuthorized = function()  {
+        return tadpole.name.charAt('0') == "@";
+    };
+
     //画名字
-	var drawName = function(context) {
-        var txt = tadpole.name + " "+ tadpole.hp+"/"+tadpole.hpmx;
-		var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate-300,1),1),.2).toFixed(3);
-		context.fillStyle = 'rgba(226,219,226,'+opacity+')';
-		context.font = 7 + "px '微软雅黑',微软雅黑,'Microsoft YaHei','Microsoft Yahei', arial, sans-serif";
-		context.textBaseline = 'hanging';
-		var width = context.measureText(txt).width;
-		context.fillText(txt, tadpole.x - width/2, tadpole.y + 8);
-	}
-	
-	var drawMessages = function(context) {
-		tadpole.messages.reverse();
-		for(var i = 0, len = tadpole.messages.length; i<len; i++) {
-			tadpole.messages[i].draw(context, tadpole.x+10, tadpole.y+5, i);
-		}
-		tadpole.messages.reverse();
-	};
-	
+    var getCampColor = function() {
+        switch (tadpole.camp) {
+        case camp[0]:
+            {
+                return "rgba(255,255,255,";
+            }
+            break;
+        case camp[2]:
+            {
+                return "rgba(255,100,100,"
+            }
+            break;
+        }
+    }
+    var drawHp = function(context) {
+        context.save();
+        context.strokeStyle = getCampColor() + "0.6)";
+        context.fillStyle = getCampColor() + "1)";
+        context.strokeRect(tadpole.x - tadpole.size * 3, tadpole.y - tadpole.size * 2, tadpole.size * 6, tadpole.size / 3);
+        var percent = (tadpole.hp / tadpole.hpmx).toFixed(3);
+        context.fillRect(tadpole.x - tadpole.size * 3, tadpole.y - tadpole.size * 2, percent * tadpole.size * 6, tadpole.size / 3);
+        context.restore();
+    }
+    var drawName = function(context) {
+        var txt = tadpole.name + " " + tadpole.hp + "/" + tadpole.hpmx;
+        var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate - 300, 1), 1), .2).toFixed(3);
+        context.fillStyle = 'rgba(226,219,226,' + opacity + ')';
+        context.font = 7 + "px '微软雅黑',微软雅黑,'Microsoft YaHei','Microsoft Yahei', arial, sans-serif";
+        context.textBaseline = 'hanging';
+        var width = context.measureText(txt).width;
+        context.fillText(txt, tadpole.x - width / 2, tadpole.y + 8);
+    }
+
+    var drawMessages = function(context) {
+        tadpole.messages.reverse();
+        for (var i = 0,
+        len = tadpole.messages.length; i < len; i++) {
+            tadpole.messages[i].draw(context, tadpole.x + 10, tadpole.y + 5, i);
+        }
+        tadpole.messages.reverse();
+    };
 
     /*
     //画头像
