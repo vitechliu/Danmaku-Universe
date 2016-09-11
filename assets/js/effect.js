@@ -63,8 +63,8 @@ var Effect  = function (eSettings,x,y,startAngle,endAngle) {
             var friction = eSettings.friction || 0.05;
             var fadeStartTime = eSettings.fadeStartTime || 20;
             var fadeEndTime = eSettings.fadeEndTime || 150;
-            var startSize = eSettings.startSize || 0.05;
-            var endSize = eSettings.endSize || 0.5;
+            var startSize = eSettings.startSize || 0.1;
+            var endSize = eSettings.endSize || 0.7;
             var minSpeed = eSettings.minSpeed || 0.1;
             
             this.blur = eSettings.blur || 0;

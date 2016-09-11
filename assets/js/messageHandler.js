@@ -103,7 +103,7 @@ var MessageHandler = function(model) {
                 rs.standardAcc = 0.25;
                 rs.friction =0.05
                 rs.AI = new AI(AIadd);
-                model.addEnemy(rs,standardWeapon.standard_I,"testObject");
+                model.addEnemy(rs,standardWeapon.standard_laser_I,"testObject");
             }
         } catch(e) {
             console.log(e);

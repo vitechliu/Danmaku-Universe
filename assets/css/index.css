@@ -108,7 +108,20 @@ strong {
 	left: 5px;
 	z-index: 2;
 }
-
+#selfStatus {
+    position:absolute;
+    bottom:5px;
+    left:5px;
+    width:290px;
+    height:137px;
+    background-color:rgba(255,255,255,.1);
+    box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
+}
+#selfStatusText {
+    margin-top:3px;
+    margin-left:3px;
+    color:rgba(255,255,255,.9);
+}
 #hp {
     position: absolute;
     top:5px;
@@ -116,30 +129,56 @@ strong {
     width:206px;
     height:48px;
     background-color:rgba(255,255,255,.1);
+    box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
 }
 
 #hpBarText {
     position: absolute;
-    top:5px;
-    left:3px;
+    top:2px;
+    left:1px;
     color:rgba(255,255,255,.9);
+    transform:scale(0.875);
 }
 #hpBarBorder {
     position: absolute;
-    top:25px;
-    left:3px;
-    width:199px;
-    height:7px;
-    border:1px solid rgba(255,255,255,.9);
-    box-shadow:0 0 2px 2px rgba(255,255,255,.9);
+    top:17px;
+    left:4px;
+    width:196px;
+    height:3px;
+    border:1px solid rgba(100,255,100,.9);
+    box-shadow:0 0 1px 1px rgba(100,255,100,.9);
 }
 #hpBar {
     position: absolute;
-    top:25px;
-    left:3px;
-    width:200px;
-    height:8px;
-    background-color:rgba(255,255,255,1);
+    top:17px;
+    left:4px;
+    width:195px;
+    height:4px;
+    background-color:rgba(100,255,100,1);
+}
+#expBarText {
+    position: absolute;
+    top:23px;
+    left:1px;
+    color:rgba(255,255,255,.9);
+    transform:scale(0.875);
+}
+#expBarBorder {
+    position: absolute;
+    top:38px;
+    left:4px;
+    width:196px;
+    height:3px;
+    border:1px solid rgba(255,255,100,.9);
+    box-shadow:0 0 1px 1px rgba(255,255,100,.9);
+}
+#expBar {
+    position: absolute;
+    top:38px;
+    left:4px;
+    width:195px;
+    height:4px;
+    background-color:rgba(255,255,100,1);
 }
 #chatBox {
 	display: blck;
@@ -153,6 +192,16 @@ strong {
 	font-size: 3em;
 	font-weight: bold;
 	max-width: 70%;
+}
+#statusBox {
+	position: absolute;
+	display: block;
+	margin: 0;
+	left: 5px;
+	top: 5px;
+	width: 300px;
+	height: 200px;
+    
 }
 
 .uiBox {
@@ -360,12 +409,3 @@ a#force-init-button:hover {
 	color: rgba(255,255,50,.9)!important;
 }
 
-#statusBox {
-	position: absolute;
-	display: block;
-	margin: 0;
-	left: 5px;
-	top: 5px;
-	width: 300px;
-	height: 200px;
-}

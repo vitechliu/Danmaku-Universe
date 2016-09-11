@@ -1,12 +1,38 @@
+/*
+命名:
+
+大前缀 
+standard_ 主机初始武器
+boss_ boss武器
+random_ 随机武器
+
+子弹运动特性(顺序从上到下)
+tripple 三连 dual 二连 
+H-tripple H-dual 并排的二三连
+guard 防御
+spiral 螺旋状
+fast 
+
+子弹类型
+laser 匀速子弹武器
+mine 减速至不动/直接不动的地雷
+
+代号
+I II III等
+
+
+
+*/
+
 var standardWeapon = {
-    standard_I:{
+    standard_laser_I:{
         name:"Standard Laser I",
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
         type:1,
         frequency:10,
-        danmakuType:standardDanmaku.standard_I,
+        danmakuType:standardDanmaku.rec_bullet_I,
         counterShield:false,
         speedAdd:1,
         damageAdd:1,
@@ -25,14 +51,14 @@ var standardWeapon = {
             };
         }
     },
-    standard_Tripple:{
-        name:"Standard Tripple Laser",
+    standard_tripple_laser_I:{
+        name:"Standard Tripple Laser I",
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
         type:1,
         frequency:22,
-        danmakuType:standardDanmaku.standard_I,
+        danmakuType:standardDanmaku.rec_bullet_I,
         counterShield:false,
         speedAdd:1,
         damageAdd:1,
@@ -51,17 +77,17 @@ var standardWeapon = {
             };
         }
     },
-    enemy_I:{
-        name:"Enemy Laser I",
+    laser_I:{
+        name:"Laser I",
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
         type:1,
         frequency:240,
-        danmakuType:standardDanmaku.standard_I,
+        danmakuType:standardDanmaku.rec_bullet_I,
         counterShield:false,
         speedAdd:1,
-        damageAdd:0.1,
+        damageAdd:1,
         num:1,
         tadpoleFuncWeapon:function(tadpole) {
             var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
@@ -72,6 +98,60 @@ var standardWeapon = {
             };
         },
         xyaFuncDanmaku:function(x,y,a,n) {
+            return {
+              x:x,y:y,a:a
+            };
+        }
+    },
+    spiral_laser_II:{
+        name:"Spiral Laser II",
+        hasSprites:false,
+        isDesigned:false,
+        isRandomed:false,
+        type:1,
+        frequency:2,
+        danmakuType:standardDanmaku.rec_bullet_I,
+        counterShield:false,
+        speedAdd:1,
+        damageAdd:1,
+        num:2,
+        tadpoleFuncWeapon:function(tadpole) {
+            var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
+            var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
+            var wa = tadpole.angle;
+            return {
+              x:wx,y:wy,a:wa  
+            };
+        },
+        xyaFuncDanmaku:function(x,y,a,n,t) {
+            var angleDiff = Math.cos(t/7)*Math.PI/10;
+            angleDiff *= 2*(n % 2)-1;
+            return {
+              x:x,y:y,a:a+angleDiff
+            };
+        }
+    },
+    guard_mine_I:{
+        name:"Guard Mine 1",
+        hasSprites:false,
+        isDesigned:false,
+        isRandomed:false,
+        type:1,
+        frequency:10,
+        danmakuType:standardDanmaku.slowMine_circle_bullet_I,
+        counterShield:false,
+        speedAdd:1,
+        damageAdd:1,
+        num:1,
+        tadpoleFuncWeapon:function(tadpole) {
+            var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
+            var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
+            var wa = tadpole.angle;
+            return {
+              x:wx,y:wy,a:wa  
+            };
+        },
+        xyaFuncDanmaku:function(x,y,a,n,t) {
             return {
               x:x,y:y,a:a
             };
@@ -92,6 +172,7 @@ var Weapon = function(wSettings,tadpole) {
     this.danmaku = [];
     this.frequency = wSettings.frequency;
     this.time = 0;
+    this.life = 0;//便于计算弹幕
     
     this.onFire = false;
     
@@ -106,6 +187,7 @@ var Weapon = function(wSettings,tadpole) {
     
     this.pm.damageAdd = this.damageAdd;
     this.pm.speedAdd = this.speedAdd;
+    this.pm.tadpole = this.tadpole;
     this.pm.camp = tadpole.camp;
     
     this.tadpoleFuncWeapon = wSettings.tadpoleFuncWeapon;
@@ -130,16 +212,19 @@ var Weapon = function(wSettings,tadpole) {
         
         //发射子弹相关
         weapon.time = (weapon.time == weapon.frequency) ? weapon.frequency : weapon.time+1;
+        weapon.life ++;
         
         if (weapon.onFire) {
             if (weapon.time == weapon.frequency) {
                 weapon.time = 0;
                 for (var i=0;i<weapon.num;i++) {
-                    var xya = weapon.xyaFuncDanmaku(weapon.x,weapon.y,weapon.angle,i);
-                    weapon.pm.x = xya.x;
-                    weapon.pm.y = xya.y;
-                    weapon.pm.angle = xya.a;
-                    weapon.danmaku.push(new Danmaku(model,weapon.danmakuType,weapon.pm));
+                    var xya = weapon.xyaFuncDanmaku(weapon.x,weapon.y,weapon.angle,i,weapon.life);
+                    if(xya != null) {
+                        weapon.pm.x = xya.x;
+                        weapon.pm.y = xya.y;
+                        weapon.pm.angle = xya.a;
+                        weapon.danmaku.push(new Danmaku(model,weapon.danmakuType,weapon.pm));
+                    }
                 }
                 
             }
@@ -179,7 +264,7 @@ type
 1 创造子弹型
 |- num 一次创造多少danmaku
 |- speedAdd 速度加成 默认1
-|- xyaFuncDanmaku 根据武器的炮口xy和angle和子弹顺序返回子弹xy和angle
+|- xyaFuncDanmaku 根据武器的炮口xy和angle和子弹顺序和时间返回子弹xy和angle 若返回null说明不发射子弹
 
 collide 碰撞类型
 

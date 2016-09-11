@@ -1,3 +1,12 @@
+//经验数组
+var tadpoleExp = [];
+tadpoleExp[0] = 0;
+tadpoleExp[1] = 0;
+for (var i=2;i<100;i++) {
+    tadpoleExp[i] = (i-1)*(i-1)*50;
+}
+
+
 var Tadpole = function(tSettings) {
     var tadpole = this;
 
@@ -7,6 +16,10 @@ var Tadpole = function(tSettings) {
     this.hpRegen = tSettings.hpRegen || 0;
     this.die = false;
     this.camp = tSettings.camp || camp[1];
+    
+    
+    this.level = tSettings.level || 1;
+    this.exp = tadpoleExp[this.level];
     
     //AI
     this.AI = tSettings.AI || null;
@@ -93,7 +106,7 @@ var Tadpole = function(tSettings) {
     this.motion_set = motion_set;
     //无服务器加载时间
     this.timeSinceLastServerUpdate = 0;
-
+    
     this.fire = function(model) {
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
             if (tadpole.weapon[i] != null && tadpole.weaponActivated[i]) tadpole.weapon[i].fire(model);
@@ -174,11 +187,7 @@ var Tadpole = function(tSettings) {
         if (tadpole.onFire) tadpole.fire(model);
 
         //判断死亡
-        if (tadpole.hp <= 0) {
-            tadpole.hp = 0;
-            tadpole.die = true;
-            tadpole.onDeath(model);
-        }
+        
         tadpole.hp += (tadpole.hp<tadpole.hpmx) ? tadpole.hpRegen : 0;
 
     };
@@ -285,6 +294,7 @@ var Tadpole = function(tSettings) {
 
         //画尾巴
         //tadpole.tail.draw(context);
+        
         //画武器
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
             if (tadpole.weapon[i] != null) tadpole.weapon[i].draw(context);
@@ -302,14 +312,40 @@ var Tadpole = function(tSettings) {
         model.effects.push(new Effect(standardEffect.particles.large, tadpole.x, tadpole.y, 0, Math.PI * 2));
     }
 
-    this.onHit = function() {
+    this.onHit = function(model,danmaku) {
+        if(tadpole.AI!=null) {
+            tadpole.AI.target = danmaku.tadpole; //仇恨
+            tadpole.AI.status = 2;
+        }
         tadpole.timeSinceLastServerUpdate = 0;
+        tadpole.hp -= danmaku.damage;
+        if (tadpole.hp <= 0) {
+            tadpole.hp = 0;
+            tadpole.die = true;
+            danmaku.tadpole.expGain(Math.floor(tadpole.exp * 0.2));
+            tadpole.onDeath(model);
+        }
     }
-    //判断名字是否为twitter账号
-    var isAuthorized = function()  {
-        return tadpole.name.charAt('0') == "@";
-    };
-
+    
+    //经验
+    this.expGain = function(exp) {
+        tadpole.exp += exp;
+        var i=2;
+        while (tadpole.exp >= tadpoleExp[i]) {
+            if (tadpole.exp < tadpoleExp[i+1]) {
+                tadpole.level = i;
+                //动画
+                return;
+            } 
+            i++;
+            if (i==100) {
+                tadpole.level = 100; 
+                return;
+            }
+        }
+        return;
+    }
+    
     //画名字
     var getCampColor = function() {
         switch (tadpole.camp) {
@@ -352,7 +388,8 @@ var Tadpole = function(tSettings) {
         }
         tadpole.messages.reverse();
     };
-
+    
+    
     /*
     //画头像
 	var drawIcon = function(context){

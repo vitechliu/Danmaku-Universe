@@ -17,6 +17,9 @@ campJudge[0] = [true,true,false,true];
 campJudge[1] = [true,true,false,true];
 campJudge[2] = [false,false,false,false];
 
+var getDistance = function(x1,y1,x2,y2) {
+    return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+}
 
 var App = function(aCanvas) {
     var app = this;
@@ -43,8 +46,17 @@ var App = function(aCanvas) {
     app.update = function() {
         stats.begin();
         //更新UI！！
-        $("#hpBar").css("width",Math.floor(200*model.userTadpole.hp/model.userTadpole.hpmx)+"px");
+        $("#hpBar").css("width",Math.floor(197*model.userTadpole.hp/model.userTadpole.hpmx)+"px");
         $("#hpBarText").text("Hp: "+model.userTadpole.hp.toFixed(1)+" / "+model.userTadpole.hpmx);
+        $("#expBar").css("width",Math.floor(197*model.userTadpole.exp/tadpoleExp[model.userTadpole.level+1])+"px");
+        $("#expBarText").text("Exp: "+model.userTadpole.exp+" / "+tadpoleExp[model.userTadpole.level+1]);
+        var statusText = "";
+        statusText += "Self.x: "+model.userTadpole.x.toFixed(1)+"<br>"
+        statusText += "Self.y: "+model.userTadpole.y.toFixed(1)+"<br>"
+        statusText += "Self.speed: "+model.userTadpole.speed.toFixed(1)+"<br>"
+        statusText += "Self.Level: "+model.userTadpole.level+"<br>"
+        $("#selfStatusText").html(statusText);
+        
         
         
         //----
@@ -133,20 +145,6 @@ var App = function(aCanvas) {
             model.arrows[i].draw(context, canvas);
         }
         
-        context.fillStyle = "#FFFFFF";
-		context.fillText("x:"+model.userTadpole.x, 10,100);
-        context.fillText("y:"+model.userTadpole.y, 10,115);
-        /*
-        context.fillText("SpeedX:"+model.userTadpole.speedX.toFixed(3), 10,130);
-        context.fillText("SpeedY:"+model.userTadpole.speedY.toFixed(3), 10,145);
-        context.fillText("Speed:"+model.userTadpole.speed.toFixed(3), 10,160);
-        context.fillText("SpeedAngle:"+model.userTadpole.speedAngle, 10,190);
-        
-        context.fillText("keyNavX:"+model.userTadpole.keyNavX.toFixed(3), 10,210);
-        context.fillText("keyNavY:"+model.userTadpole.keyNavY.toFixed(3), 10,230);
-        
-        context.fillText("keyNavY:"+model.userTadpole.keyNavY.toFixed(3), 10,230);
-        */
     };
     
 /*
@@ -334,7 +332,7 @@ var App = function(aCanvas) {
         
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
-        model.userTadpole.weapon[1] = new Weapon(standardWeapon.standard_I,model.userTadpole);
+        model.userTadpole.weapon[1] = new Weapon(standardWeapon.spiral_laser_II,model.userTadpole);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
         //添加水粒子
@@ -381,7 +379,7 @@ var App = function(aCanvas) {
         st.standardAcc = 0.25;
         st.friction =0.05;
         
-        model.addEnemy(st,standardWeapon.enemy_I,"testGuard");
+        model.addEnemy(st,standardWeapon.laser_I,"testGuard");
         //----------------
         //model全局判断附近敌人数量
         model.getEnemyNum = function(self,radius) {
@@ -390,12 +388,12 @@ var App = function(aCanvas) {
             switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
-                        if (model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
+                        if (model.tadpoles[i].camp == camp[2] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
                     return num;
                 } break;
                 case camp[2]:{
                     for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
+                        if (model.tadpoles[i]!= self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
                     return num;
                 } break;
                 default: {return 0;} break;
@@ -407,12 +405,12 @@ var App = function(aCanvas) {
             switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
-                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
+                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
                     return enemy;
                 } break;
                 case camp[2]:{
                     for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
+                        if (model.tadpoles[i]!= self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
                     return enemy;
                 } break;
                 default: {return enemy;} break;
@@ -425,16 +423,16 @@ var App = function(aCanvas) {
             switch(self.camp) {
                 case camp[0]:{ //玩家
                     for (var i in model.tadpoles) 
-                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {
-                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
+                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {
+                            d = getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
                             enemy = model.tadpoles[i];
                         }
                     return enemy;
                 } break;
                 case camp[2]:{
                     for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {   
-                            d = model.getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
+                        if (model.tadpoles[i]!= self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {   
+                            d = getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
                             enemy = model.tadpoles[i];
                         }             
                     return enemy;

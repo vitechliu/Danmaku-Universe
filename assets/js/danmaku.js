@@ -1,5 +1,25 @@
+/*
+弹幕命名
+
+moving_shape_type_代号
+
+moving:
+减速 slow
+减速至不动 slowMine
+不动 mine
+匀速 无
+加速 acc
+
+shape :
+矩形rec
+圆形circle
+
+type:
+bullet子弹
+
+*/
 var standardDanmaku = {
-    standard_I:{
+    rec_bullet_I:{
         type:"bullet",
         shape:"rec",
         height:1,
@@ -13,6 +33,38 @@ var standardDanmaku = {
         color:"rgba(255,255,255,",
         opacity:0.9,
         maxLife:1000,
+        penetrable:false,
+        damage:50
+    },
+    circle_bullet_I:{
+        type:"bullet",
+        shape:"circle",
+        size:1,
+        speedFunc:function(time) {
+            return 8;
+        },
+        angleFunc:function(defaultAngle,time) {
+            return defaultAngle;
+        },
+        color:"rgba(255,255,255,",
+        opacity:0.9,
+        maxLife:1000,
+        penetrable:false,
+        damage:50
+    },
+    slowMine_circle_bullet_I:{ //防御型弹幕 会漂浮不动
+        type:"bullet",
+        shape:"circle",
+        size:1,
+        speedFunc:function(time) {
+            return 8/time;
+        },
+        angleFunc:function(defaultAngle,time) {
+            return defaultAngle;
+        },
+        color:"rgba(255,255,255,",
+        opacity:0.9,
+        maxLife:1500,
         penetrable:false,
         damage:50
     }
@@ -52,6 +104,7 @@ var Danmaku = function(model,dSettings,parameter) {
     this.life = 0;
     this.damageAdd = parameter.damageAdd || 1;
     this.camp = parameter.camp;
+    this.tadpole = parameter.tadpole;
     
     function drawRect(x,y,w,h,a,ctx) {
         ctx.beginPath();
@@ -72,7 +125,7 @@ var Danmaku = function(model,dSettings,parameter) {
                     this.height = dSettings.height;
                 } break;
                 case "circle": {
-                    this.size = dSettings.height;
+                    this.size = dSettings.size;
                 } break;
                 default: {} break;
             }
@@ -88,24 +141,37 @@ var Danmaku = function(model,dSettings,parameter) {
     }
     
     function whenCollision(tadpole) { //发生碰撞
-        tadpole.hp-= danmaku.damage;
         var a = getPEAngle(tadpole,danmaku.x,danmaku.y);
         model.effects.push(new Effect(standardEffect.particles.small,danmaku.x,danmaku.y,a.start,a.end));
         if(!danmaku.penetrable) danmaku.die = true;
-        tadpole.onHit();
+        tadpole.onHit(model,danmaku);
     }
     
     function checkCollision(model) {
-        var collisionX = danmaku.x+0.5*danmaku.width*Math.cos(danmaku.angle)-0.5*danmaku.height*Math.sin(danmaku.angle);
-        var collisionY = danmaku.y+0.5*danmaku.width*Math.sin(danmaku.angle)-0.5*danmaku.height*Math.cos(danmaku.angle);
+        var collisionX;
+        var collisionY;
+        switch(danmaku.shape) {
+            case "rec":{
+                collisionX = danmaku.x+0.5*danmaku.width*Math.cos(danmaku.angle)-0.5*danmaku.height*Math.sin(danmaku.angle);
+                collisionY = danmaku.y+0.5*danmaku.width*Math.sin(danmaku.angle)-0.5*danmaku.height*Math.cos(danmaku.angle);
+            } break;
+            case "circle":{
+                collisionX = danmaku.x;
+                collisionY = danmaku.y;
+            } break;
+            default:{
+                collisionX = danmaku.x;
+                collisionY = danmaku.y;
+            } break;
+        } 
         switch(danmaku.camp) {
             case camp[0]:{ //玩家
             for (var i in model.tadpoles) 
-                if (i!=-1 && model.tadpoles[i].camp == camp[2] && model.getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
+                if (i!=-1 && model.tadpoles[i].camp == camp[2] && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
             } break;
             case camp[2]:{
                 for (var i in model.tadpoles) 
-                    if (model.tadpoles[i]!= model.tadpoles && model.getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
+                    if (model.tadpoles[i]!= danmaku.tadpole && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
             } break;
             default: {} break;
         }
@@ -121,7 +187,6 @@ var Danmaku = function(model,dSettings,parameter) {
                 danmaku.y += danmaku.speed * Math.sin(danmaku.angle);
                 
                 
-                //console.log(danmaku.angle);
                 //碰撞检测部分
                 checkCollision(model);
                 
@@ -141,6 +206,13 @@ var Danmaku = function(model,dSettings,parameter) {
                     case "rec": {
                         context.fillStyle = danmaku.color+danmaku.opacity+")";
                         drawRect(danmaku.x,danmaku.y,danmaku.width,danmaku.height,danmaku.angle,context);
+                    } break;
+                    case "circle": {
+                        context.fillStyle = danmaku.color+danmaku.opacity+")";
+                        context.beginPath();
+                        context.arc(danmaku.x,danmaku.y,danmaku.size,0,2*Math.PI);
+                        context.closePath();
+                        context.fill();
                     } break;
                     default: {} break;
                 }
@@ -173,6 +245,7 @@ type:
 |- |- |- height
 |- |- "circle" 圆
 |- |- |- radius
+|- |- "other" 自定义
 |- speedFunc(time) 子弹速度方程
 |- angleFunc(time) 子弹方向方程
 |- damage 伤害
