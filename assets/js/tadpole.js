@@ -107,8 +107,35 @@ var Tadpole = function(tSettings) {
     //无服务器加载时间
     this.timeSinceLastServerUpdate = 0;
     
+    this.unEquip = function (slot,model) {
+        tadpole.weapon[slot] = null;
+        //
+    }
+    this.equip = function(wp,slot,model) {
+        if (typeof wp.danmakuType == undefined) {
+            throw "Not a valid weapon";
+            return;
+        }
+        tadpole.weapon[slot] = wp;
+        if(tadpole == model.userTadpole) {
+            var query1 = "#weaponBox"+slot+" img";
+            var query2_1 = "#weaponData"+slot+"-1";
+            var query2_2 = "#weaponData"+slot+"-2";
+            var query2_3 = "#weaponData"+slot+"-3";
+            var txt = "<strong>&nbsp;"+wp.name + "</strong><br>";
+            $(query2_1).html(txt);
+            txt = "<i class=\"fa fa-fw\"></i>" +wp.damageAdd*wp.danmakuType.damage+"<br>";
+            txt += "<i class=\"fa fa-fw\"></i>" +wp.frequency+"<br>";
+            $(query2_2).html(txt);
+            txt = "<i class=\"fa fa-fw\"></i>" +wp.price+"<br>";
+            txt += "<i class=\"fa fa-fw\"></i>" +wp.danmakuType.type+"<br>";
+            $(query2_3).html(txt);
+            $(query1).attr("src",model.source.image[wp.name].src);
+        }
+    }
     this.fire = function(model) {
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
+            
             if (tadpole.weapon[i] != null && tadpole.weaponActivated[i]) tadpole.weapon[i].fire(model);
         }
         tadpole.timeSinceLastServerUpdate = 0;
@@ -149,7 +176,7 @@ var Tadpole = function(tSettings) {
         //处理摩擦力
         if (tadpole.speed > 0 && (Math.abs(tadpole.speedX) > 0 || Math.abs(tadpole.speedY) > 0)) {
             tadpole.speedAngle = Math.atan2(tadpole.speedY, tadpole.speedX);
-            if (tadpole.speed * (tadpole.speed - tadpole.friction) <= 0) motion_set(0, 0);
+            if ((tadpole.keyNavX == 0 && tadpole.keyNavY == 0) && tadpole.speed * (tadpole.speed - tadpole.friction) <= 0) motion_set(0, 0);
             else motion_add(tadpole.speedAngle, -tadpole.friction);
 
             tadpole.timeSinceLastServerUpdate = 0;
@@ -267,7 +294,7 @@ var Tadpole = function(tSettings) {
 		}
 		
         */
-
+        context.save();
         context.fillStyle = 'rgba(226,219,226,' + opacity + ')';
 
         //投影(发光),6大小的模糊,颜色白色70%透明
@@ -294,14 +321,13 @@ var Tadpole = function(tSettings) {
 
         //画尾巴
         //tadpole.tail.draw(context);
+        context.restore();
         
         //画武器
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
             if (tadpole.weapon[i] != null) tadpole.weapon[i].draw(context);
         }
 
-        context.shadowBlur = 0;
-        context.shadowColor = '';
 
         drawName(context);
         drawMessages(context);
@@ -322,19 +348,32 @@ var Tadpole = function(tSettings) {
         if (tadpole.hp <= 0) {
             tadpole.hp = 0;
             tadpole.die = true;
-            danmaku.tadpole.expGain(Math.floor(tadpole.exp * 0.2));
+            danmaku.tadpole.expGain(Math.floor(tadpole.exp * 0.2),model);
             tadpole.onDeath(model);
         }
     }
     
     //经验
-    this.expGain = function(exp) {
+    this.expGain = function(exp,model) {
+        function ef(x,y) {
+            model.effects.push(new Effect(standardEffect.ring.large_out,x,y));
+            model.effects.push(new Effect(standardEffect.ring.small_out,x,y));
+        }
+        function ef2(x,y){
+            model.effects.push(new Effect(standardEffect.particles.medium,x,y,0,Math.PI*2));
+        }
+        
         tadpole.exp += exp;
-        var i=2;
+        var i=tadpole.level+1;
         while (tadpole.exp >= tadpoleExp[i]) {
             if (tadpole.exp < tadpoleExp[i+1]) {
                 tadpole.level = i;
-                //动画
+                model.effects.push(new Effect(standardEffect.ring.medium_out,tadpole.x,tadpole.y));
+                var x = tadpole.x;
+                var y = tadpole.y;
+                setTimeout(function(){ef(x,y);},200);
+                setTimeout(function(){ef2(x,y);},500);
+                
                 return;
             } 
             i++;
@@ -365,12 +404,13 @@ var Tadpole = function(tSettings) {
         context.save();
         context.strokeStyle = getCampColor() + "0.6)";
         context.fillStyle = getCampColor() + "1)";
-        context.strokeRect(tadpole.x - tadpole.size * 3, tadpole.y - tadpole.size * 2, tadpole.size * 6, tadpole.size / 3);
+        context.strokeRect(tadpole.x - tadpole.size * 2.4, tadpole.y - tadpole.size * 2.2, tadpole.size * 4.8, tadpole.size / 3);
         var percent = (tadpole.hp / tadpole.hpmx).toFixed(3);
-        context.fillRect(tadpole.x - tadpole.size * 3, tadpole.y - tadpole.size * 2, percent * tadpole.size * 6, tadpole.size / 3);
+        context.fillRect(tadpole.x - tadpole.size * 2.4, tadpole.y - tadpole.size * 2.2, percent * tadpole.size * 4.8, tadpole.size / 3);
         context.restore();
     }
     var drawName = function(context) {
+        context.save();
         var txt = tadpole.name;
         var opacity = Math.max(Math.min(20 / Math.max(tadpole.timeSinceLastServerUpdate - 300, 1), 1), .2).toFixed(3);
         context.fillStyle = 'rgba(226,219,226,' + opacity + ')';
@@ -378,6 +418,7 @@ var Tadpole = function(tSettings) {
         context.textBaseline = 'hanging';
         var width = context.measureText(txt).width;
         context.fillText(txt, tadpole.x - width / 2, tadpole.y + 8);
+        context.restore();
     }
 
     var drawMessages = function(context) {

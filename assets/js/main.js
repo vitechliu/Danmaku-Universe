@@ -77,6 +77,28 @@ $(function() {
 		e.preventDefault();
 		window.open($(this).attr('href'));
 	});
+    
+    if (!Modernizr.csstransitions) {
+    $(".weaponBox").mouseover(function(e){
+        var browser=navigator.userAgent;   //取得浏览器属性
+        if (browser.indexOf("MSIE")>0) { //如果是IE
+            if (this.contains(event.toElement)) return; // 如果是子元素则结束函数
+        } else { //如果是Firefox
+            if (this.contains(e.relatedTarget)) return; // 如果是子元素则结束函数
+        }
+        $(this).animate({left:"5px"}); 
+    });
+    
+    $(".weaponBox").mouseout(function(e){
+        var browser=navigator.userAgent;   //取得浏览器属性
+        if (browser.indexOf("MSIE")>0) { //如果是IE
+            if (this.contains(event.toElement)) return; // 如果是子元素则结束函数
+        } else { //如果是Firefox
+            if (this.contains(e.relatedTarget)) return; // 如果是子元素则结束函数
+        }
+        $(this).animate({left:"-140px"}); 
+    });
+    }
 });
 
 //禁止复制

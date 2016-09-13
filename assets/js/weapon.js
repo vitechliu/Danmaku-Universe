@@ -37,6 +37,7 @@ var standardWeapon = {
         speedAdd:1,
         damageAdd:1,
         num:1,
+        price:100,
         tadpoleFuncWeapon:function(tadpole) {
             var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
             var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
@@ -51,8 +52,8 @@ var standardWeapon = {
             };
         }
     },
-    standard_tripple_laser_I:{
-        name:"Standard Tripple Laser I",
+    tripple_laser_I:{
+        name:"Tripple Laser I",
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
@@ -63,6 +64,7 @@ var standardWeapon = {
         speedAdd:1,
         damageAdd:1,
         num:3,
+        price:500,
         tadpoleFuncWeapon:function(tadpole) {
             var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
             var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
@@ -89,6 +91,7 @@ var standardWeapon = {
         speedAdd:1,
         damageAdd:1,
         num:1,
+        price:5,
         tadpoleFuncWeapon:function(tadpole) {
             var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
             var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
@@ -115,6 +118,7 @@ var standardWeapon = {
         speedAdd:1,
         damageAdd:1,
         num:2,
+        price:7000,
         tadpoleFuncWeapon:function(tadpole) {
             var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
             var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
@@ -143,6 +147,7 @@ var standardWeapon = {
         speedAdd:1,
         damageAdd:1,
         num:1,
+        price:5000,
         tadpoleFuncWeapon:function(tadpole) {
             var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
             var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
@@ -160,7 +165,6 @@ var standardWeapon = {
 };
 
 var Weapon = function(wSettings,tadpole) {
-    
     var weapon = this;
     
     this.x = 0; //update中更新炮口x,y
@@ -173,6 +177,8 @@ var Weapon = function(wSettings,tadpole) {
     this.frequency = wSettings.frequency;
     this.time = 0;
     this.life = 0;//便于计算弹幕
+    this.name = wSettings.name;
+    this.price = wSettings.price || 1;
     
     this.onFire = false;
     
@@ -196,6 +202,7 @@ var Weapon = function(wSettings,tadpole) {
     this.fire = function(model) {
         weapon.onFire = true;     
         
+        
     }
     
     this.cease = function() {
@@ -215,6 +222,7 @@ var Weapon = function(wSettings,tadpole) {
         weapon.life ++;
         
         if (weapon.onFire) {
+            
             if (weapon.time == weapon.frequency) {
                 weapon.time = 0;
                 for (var i=0;i<weapon.num;i++) {

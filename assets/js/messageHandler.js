@@ -79,7 +79,7 @@ var MessageHandler = function(model) {
             return;
         }
         try {
-            model.userTadpole.weapon[place] = new Weapon(standardWeapon[wp],model.userTadpole);
+            model.userTadpole.equip(new Weapon(standardWeapon[wp],model.userTadpole),place,model);
         } catch(e){
             console.log(e);
             messageHandler.popMessage("请输入正确的武器名!","server");

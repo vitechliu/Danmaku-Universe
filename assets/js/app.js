@@ -50,11 +50,13 @@ var App = function(aCanvas) {
         $("#hpBarText").text("Hp: "+model.userTadpole.hp.toFixed(1)+" / "+model.userTadpole.hpmx);
         $("#expBar").css("width",Math.floor(197*model.userTadpole.exp/tadpoleExp[model.userTadpole.level+1])+"px");
         $("#expBarText").text("Exp: "+model.userTadpole.exp+" / "+tadpoleExp[model.userTadpole.level+1]);
+        
         var statusText = "";
-        statusText += "Self.x: "+model.userTadpole.x.toFixed(1)+"<br>"
-        statusText += "Self.y: "+model.userTadpole.y.toFixed(1)+"<br>"
-        statusText += "Self.speed: "+model.userTadpole.speed.toFixed(1)+"<br>"
-        statusText += "Self.Level: "+model.userTadpole.level+"<br>"
+        statusText += "<i class=\"fa fa-fw\"></i>Level: "+model.userTadpole.level+"<br>";
+        statusText += "<i class=\"fa fa-fw\"></i>Position:  ("+model.userTadpole.x.toFixed(1)+",";
+        statusText += model.userTadpole.y.toFixed(1)+")<br>";
+        statusText += "<i class=\"fa fa-fw\"></i>Speed: "+model.userTadpole.speed.toFixed(1)+"<br>";
+        
         $("#selfStatusText").html(statusText);
         
         
@@ -145,6 +147,15 @@ var App = function(aCanvas) {
             model.arrows[i].draw(context, canvas);
         }
         
+        /*
+        context.save();
+        context.font="14px FontAwesome";
+        context.fillStyle="rgba(255,255,255,.9)";
+        var txt = "\uf036"  
+        context.fillText(txt,100,100);
+        context.restore();     
+        
+        */
     };
     
 /*
@@ -207,6 +218,7 @@ var App = function(aCanvas) {
         if (model.userTadpole && e.which == 1) {
             model.userTadpole.cease();
         }
+        model.userTadpole.expGain(20,model);
     };
 
     //监控鼠标位置
@@ -324,6 +336,9 @@ var App = function(aCanvas) {
         resizeCanvas();
 
         model = new Model();
+        //资源
+        model.source = new Source();
+        
         
         //主机设定与添加
         var userT = {};
@@ -332,9 +347,14 @@ var App = function(aCanvas) {
         
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
-        model.userTadpole.weapon[1] = new Weapon(standardWeapon.spiral_laser_II,model.userTadpole);
+        model.userTadpole.equip(new Weapon(standardWeapon.standard_laser_I,model.userTadpole),1,model);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
+        //初始化UI
+        $("#weaponBox3").hide();
+        $("#weaponBox4").hide();
+
+        //UI完善主机武器1
         //添加水粒子
         model.decoStars = [];
         for (var i = 0; i < 400; i++) {
@@ -362,11 +382,11 @@ var App = function(aCanvas) {
         
         model.addEnemy = function(settings,wp,name) {
             var t = new Tadpole(settings);
-            if (wp!=null) t.weapon[1] = new Weapon(wp,t);
+            if (wp!=null) t.equip(new Weapon(wp,t),1,model);
             model.tadpoles.push(t);
-            
             model.arrows[$.inArray(t,model.tadpoles)] = new Arrow(t, model.camera);
         }
+        
         
         //----------------
         var st = {};
@@ -399,7 +419,11 @@ var App = function(aCanvas) {
                 default: {return 0;} break;
             }
         };
-        
+        model.userAddWeaponSlot = function() {
+            model.userTadpole.weaponSlot ++;
+            if(model.userTadpole.weaponSlot == 3) $("#weaponBox3").show();
+            if(model.userTadpole.weaponSlot == 4) $("#weaponBox4").show();
+        }
         model.getEnemy = function(self,radius) {
             var enemy = [];
             switch(self.camp) {

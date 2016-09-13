@@ -102,6 +102,10 @@ strong {
 	font-weight: bold;
 }
 
+
+/*  UI 框架 */
+
+
 #fps {
 	position: relative!important;
 	top: 5px;
@@ -114,7 +118,7 @@ strong {
     left:5px;
     width:290px;
     height:137px;
-    background-color:rgba(255,255,255,.1);
+    background-color:rgba(0,0,0,.7);
     box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
 }
 #selfStatusText {
@@ -128,7 +132,7 @@ strong {
     right:5px;
     width:206px;
     height:48px;
-    background-color:rgba(255,255,255,.1);
+    background-color:rgba(0,0,0,.7);
     box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
 }
 
@@ -205,18 +209,103 @@ strong {
 }
 
 .uiBox {
-	background: -webkit-linear-gradient(top,rgba(0,0,0,0.8),rgba(0,0,0,.7));
+	background: -webkit-linear-gradient(top,rgba(150,150,150,0.8),rgba(0,0,0,.1));
  /* Safari 5.1 - 6 */
-	background: -o-linear-gradient(top,rgba(0,0,0,0.8),rgba(0,0,0,.7));
+	background: -o-linear-gradient(top,rgba(150,150,150,0.8),rgba(0,0,0,.1));
  /* Opera 11.1 - 12*/
-	background: -moz-linear-gradient(top,rgba(0,0,0,0.8),rgba(0,0,0,.7));
+	background: -moz-linear-gradient(top,rgba(150,150,150,0.8),rgba(0,0,0,.1));
  /* Firefox 3.6 - 15*/
-	background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,.7));
+	background: linear-gradient(to bottom, rgba(150,150,150,0.8), rgba(0,0,0,.1));
  /* 标准的语法 */
-	background: rgba(0,0,0,.7);
 	box-shadow: 0 0 3px 3px rgba(0,0,0,.7);
 }
 
+.weaponBox {
+    background: -webkit-linear-gradient(left,rgba(150,150,150,0.4),rgba(0,0,0,.1));
+	background: -o-linear-gradient(left,rgba(150,150,150,0.4),rgba(0,0,0,.1));
+	background: -moz-linear-gradient(left,rgba(150,150,150,0.4),rgba(0,0,0,.1));
+	background: linear-gradient(to right, rgba(150,150,150,0.4), rgba(0,0,0,.1));
+	box-shadow: 0 0 3px 3px rgba(0,0,0,.7);
+    position: absolute;
+	display: block;
+	margin: 0;
+	left: -140px;
+	width: 200px;
+	height: 60px;
+    transition: left .6s ease-in-out;
+	-o-transition: left .6s ease-in-out;
+	-moz-transition: left .6s ease-in-out;
+	-webkit-transition: left .6s ease-in-out;
+	-ms-transition: left .6s ease-in-out;
+}
+
+.weaponBox:hover {
+    left:5px;
+}
+.weaponDataBox {
+    position:absolute;
+    left:5px;
+    top:5px;
+    height:50px;
+    width:135px;
+    background-color:rgba(0,0,0,.7);
+    box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
+    font-size:10px;
+    color:rgba(255,255,255,.9);
+}
+.weaponData1 {
+    position:absolute;
+    left:0;
+    top:0;
+    height:16px;
+    width:135px;
+}
+.weaponData2 {
+    position:absolute;
+    left:0;
+    top:16px;
+    height:34px;
+    width:67.5px;
+}
+.weaponData3 {
+    position:absolute;
+    left:67.5px;
+    top:16px;
+    height:34px;
+    width:67.5px;
+}
+.weaponImg{
+    position:absolute;
+    right:4px;
+    top:4px;
+    border:1px solid rgba(255,255,255,0);
+    background-color:rgba(0,0,0,.7);
+    box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
+    width:50px;
+    height:50px;
+}
+.weaponImg img{
+    width:50px;
+    height:50px;
+    
+}
+.barButton{
+    position:absolute;
+    top:20px;
+    color:rgba(0,0,0,.9);
+}
+#weaponBox1 {
+    top:210px;
+}
+#weaponBox2 {
+    top:280px;
+}
+#weaponBox3 {
+    top:350px;
+}
+#weaponBox4 {
+    top:420px;
+}
 #chatBox {
 	display: block;
 	position: absolute;
@@ -235,6 +324,7 @@ strong {
 	padding: 0;
 	background-color: rgba(0,0,0,.7);
 	color: rgba(255,255,255,.9);
+    box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
 }
 
 #chat {
@@ -245,6 +335,7 @@ strong {
 	font-family: "Microsoft YaHei","Microsoft Yahei","微软雅黑",微软雅黑,"SimHei","黑体",黑体, sans-serif;
 	font-size: 1.2em;
 	background-color: rgba(0,0,0,.7);
+    box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
 	color: #eee;
 	border-top: 1px solid rgba(200,200,200,.5);
 	border-left: none;
@@ -286,8 +377,8 @@ strong {
 	font-size: 2em;
 	line-height: 14px;
 	padding-bottom: 2px;
-	top: 2px;
-	right: 2px;
+	top: 5px;
+	right: 5px;
 	width: 20px;
 	height: 20px;
 	transition: background-color 1s ease;

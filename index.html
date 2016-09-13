@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="assets/css/jquery.fileupload.css">
     <link rel="stylesheet" href="assets/css/jquery.mCustomScrollbar.css" />
-    
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css" />
+       
 <style>
 
 </style>
@@ -16,21 +17,56 @@
 
   <canvas id="canvas"></canvas> 
   <div id="ui"> 
+   <!--左上状态框 -->
    <div id="statusBox" class="uiBox">
     <div id="fps"></div> <!-- FPS显示 -->
     <div id="hp">
-        <div id="hpBarText"></div>
-        <div id="hpBarBorder"></div>
-        <div id="hpBar"></div>
-        <div id="expBarText"></div>
-        <div id="expBarBorder"></div>
-        <div id="expBar"></div>
+     <div id="hpBarText"></div>
+     <div id="hpBarBorder"></div>
+     <div id="hpBar"></div>
+     <div id="expBarText"></div>
+     <div id="expBarBorder"></div>
+     <div id="expBar"></div>
     </div>
     <div id="selfStatus">
         <div id="selfStatusText"></div>
     </div>
    </div>
-   <div id="chatBox" class="uiBox"> <!--左下角聊天框 -->
+   <!--左中武器框 -->
+   <div id="weaponBox1" class="weaponBox">
+       <div class="weaponDataBox">
+       <div class="weaponData weaponData1" id="weaponData1-1"></div>
+       <div class="weaponData weaponData2" id="weaponData1-2"></div>
+       <div class="weaponData weaponData3" id="weaponData1-3"></div>
+        </div>
+       <div class="weaponImg"><img name = "img1" src="game/weapon/icon/none.png" ></div>
+      </div>
+   <div id="weaponBox2" class="weaponBox">
+       <div class="weaponDataBox">
+       <div class="weaponData weaponData1" id="weaponData2-1"></div>
+       <div class="weaponData weaponData2" id="weaponData2-2"></div>
+       <div class="weaponData weaponData3" id="weaponData2-3"></div>
+           </div>
+       <div class="weaponImg"><img name = "img2" src="game/weapon/icon/none.png" ></div>
+      </div>
+   <div id="weaponBox3" class="weaponBox">
+       <div class="weaponDataBox">
+       <div class="weaponData weaponData1" id="weaponData3-1"></div>
+       <div class="weaponData weaponData2" id="weaponData3-2"></div>
+       <div class="weaponData weaponData3" id="weaponData3-3"></div>
+           </div>
+       <div class="weaponImg"><img name = "img3" src="game/weapon/icon/none.png" ></div>
+      </div>
+   <div id="weaponBox4" class="weaponBox">
+       <div class="weaponDataBox">
+       <div class="weaponData weaponData1" id="weaponData4-1"></div>
+       <div class="weaponData weaponData2" id="weaponData4-2"></div>
+       <div class="weaponData weaponData3" id="weaponData4-3"></div>
+           </div>
+       <div class="weaponImg"><img name = "img4" src="game/weapon/icon/none.png" ></div>
+      </div>
+   <!--左下聊天框 -->
+   <div id="chatBox" class="uiBox"> 
     <div id="infoBox" class="mCustomScrollbar" data-mcs-axis="y" data-mcs-theme="minimal">
     <span class="info-info">[Info]欢迎试玩游戏测试版,输入/help查看详细指令列表</span><br>
     <span class="info-info">--------------------------------------------------</span><br>
@@ -81,6 +117,8 @@
 <script src="assets/js/danmaku.js"></script>
 <script src="assets/js/weapon.js"></script>
 <script src="assets/js/ai.js"></script>    
+<script src="assets/js/loadSource.js"></script>    
+
 <!--
 <script src="assets/js/settings.js"></script>
 -->
