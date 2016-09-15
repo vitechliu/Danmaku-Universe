@@ -1,16 +1,16 @@
-//Setting.js 部分
-/*
-var Settings = function() {
-    var domain_arr = ['workerman.net'];
-    this.socketServer = 'ws://' + domain_arr[Math.floor(Math.random() * domain_arr.length + 1) - 1] + ':8280';
+//全局设定
+var Settings = {
+    ENEMY_CLEAR_DISTANCE:5000
 }
-*/
 
-var camp = []; //阵营
+//阵营
+var camp = []; 
 camp[0] = "user";
 camp[1] = "neutral"; //中立 对一切生物中立
 camp[2] = "hostile"; //敌对 对一切生物敌对
-camp[3] = "friendly"; //友好 常见于无
+camp[3] = "friendly"; //友好 对一切生物友好
+
+camp[5] = ""
 
 var campJudge = [];
 campJudge[0] = [true,true,false,true];
@@ -328,7 +328,7 @@ var App = function(aCanvas) {
         }
     };
     
-   
+    
     // 主初始化
     (function() {
         canvas = aCanvas;

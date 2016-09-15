@@ -3,7 +3,7 @@ var Arrow = function(tadpole, camera) {
 	
 	this.x = 0;
 	this.y = 0;
-	
+    
 	this.tadpole = tadpole;
 	this.camera = camera;
 	
