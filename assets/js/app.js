@@ -10,12 +10,24 @@ camp[1] = "neutral"; //中立 对一切生物中立
 camp[2] = "hostile"; //敌对 对一切生物敌对
 camp[3] = "friendly"; //友好 对一切生物友好
 
+camp[4] = "ionizer"; //解离者 主要敌人 
 camp[5] = ""
 
-var campJudge = [];
-campJudge[0] = [true,true,false,true];
-campJudge[1] = [true,true,false,true];
-campJudge[2] = [false,false,false,false];
+var cjArr = [];
+cjArr[0] = [true,true,false,true,false];
+cjArr[1] = [true,true,false,true,true];
+cjArr[2] = [false,false,false,false,false];
+cjArr[3] = [true,true,true,true,true];
+
+cjArr[4] = [false,true,false,true,true];
+
+
+var cj = function (camp1,camp2) { //CampJudge
+    var c1 = $.inArray(camp,camp1),
+        c2 = $.inArray(camp,camp2);
+    return cjArr[c1][c2];
+}
+
 
 var getDistance = function(x1,y1,x2,y2) {
     return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
@@ -23,7 +35,7 @@ var getDistance = function(x1,y1,x2,y2) {
 
 var App = function(aCanvas) {
     var app = this;
-    
+    this.time = 0;
     
     window.initEnter = 0; //处理Enter事件和聊天框focus
     var model, canvas, context, messageHandler, mouse = {
@@ -45,6 +57,8 @@ var App = function(aCanvas) {
 
     app.update = function() {
         stats.begin();
+        
+        app.time++;
         //更新UI！！
         $("#hpBar").css("width",Math.floor(197*model.userTadpole.hp/model.userTadpole.hpmx)+"px");
         $("#hpBarText").text("Hp: "+model.userTadpole.hp.toFixed(1)+" / "+model.userTadpole.hpmx);
@@ -405,19 +419,11 @@ var App = function(aCanvas) {
         model.getEnemyNum = function(self,radius) {
             var radius = radius || 1000;
             var num = 0;
-            switch(self.camp) {
-                case camp[0]:{ //玩家
-                    for (var i in model.tadpoles) 
-                        if (model.tadpoles[i].camp == camp[2] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
-                    return num;
-                } break;
-                case camp[2]:{
-                    for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) num++;
-                    return num;
-                } break;
-                default: {return 0;} break;
-            }
+            for (var i in model.tadpoles) 
+                if (!cj[model.tadpoles[i].camp,self.camp] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
+                    num++;
+            return num;
+
         };
         model.userAddWeaponSlot = function() {
             model.userTadpole.weaponSlot ++;
@@ -426,43 +432,19 @@ var App = function(aCanvas) {
         }
         model.getEnemy = function(self,radius) {
             var enemy = [];
-            switch(self.camp) {
-                case camp[0]:{ //玩家
-                    for (var i in model.tadpoles) 
-                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
-                    return enemy;
-                } break;
-                case camp[2]:{
-                    for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) enemy.push(tadpoles[i]);
-                    return enemy;
-                } break;
-                default: {return enemy;} break;
-            }
+            for (var i in model.tadpoles) 
+                if (!cj[model.tadpoles[i].camp,self.camp] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
+                    enemy.push(model.tadpoles[i]);
+            return enemy;
         };
         
         model.getCloseEnemy = function(self,d) {
             var d = d || 1000;
             var enemy = null;
-            switch(self.camp) {
-                case camp[0]:{ //玩家
-                    for (var i in model.tadpoles) 
-                        if (i!=-1 && model.tadpoles[i].camp == camp[2] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {
-                            d = getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
-                            enemy = model.tadpoles[i];
-                        }
-                    return enemy;
-                } break;
-                case camp[2]:{
-                    for (var i in model.tadpoles) 
-                        if (model.tadpoles[i]!= self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d) {   
-                            d = getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y);
-                            enemy = model.tadpoles[i];
-                        }             
-                    return enemy;
-                } break;
-                default: {return enemy;} break;
-            }
+            for (var i in model.tadpoles) 
+                if (!cj[model.tadpoles[i].camp,self.camp] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d)
+                    enemy = model.tadpoles[i];
+            return enemy;
         }
         
         $(function(){
