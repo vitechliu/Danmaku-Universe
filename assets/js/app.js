@@ -126,6 +126,8 @@ var App = function(aCanvas) {
             model.decoStars[i].update(model.camera.getOuterBounds(), model.camera.zoom);
         }
         
+        //更新弹出消息
+        model.noticeHandler.update();
 
         //武器在tadpole.update中更新
     };
@@ -384,9 +386,14 @@ var App = function(aCanvas) {
         //箭头初始化
         model.arrows = [];
         
-        //消息处理
+        //对话框消息处理
         messageHandler = new MessageHandler(model);
         
+        //弹出消息处理
+        model.noticeHandler = new NoticeHandler(model);
+        
+        model.noticeHandler.pushNotice("asdasd",500);
+        model.noticeHandler.pushNotice("123",500);
         
         model.getDistance = function(x1,y1,x2,y2) {
             return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));

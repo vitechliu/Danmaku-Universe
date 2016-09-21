@@ -220,6 +220,31 @@ strong {
 	box-shadow: 0 0 3px 3px rgba(0,0,0,.7);
 }
 
+#noticeBox {
+    position:absolute;
+    left:310px;
+    width:240px;
+    height:100px;
+    top:-100px;
+}
+
+#inNotice {
+    position:absolute;
+    left:5px;
+    width:230px;
+    height:90px;
+    top:5px;
+    background-color:rgba(0,0,0,.7);
+    box-shadow:0 0 1px 1px rgba(0,0,0,.7) inset;
+}
+
+#noticeText{
+    position:relative;
+    margin:5px;
+    color:rgba(200,200,255,1);
+    word-break : break-all;
+}
+
 .weaponBox {
     background: -webkit-linear-gradient(left,rgba(150,150,150,0.4),rgba(0,0,0,.1));
 	background: -o-linear-gradient(left,rgba(150,150,150,0.4),rgba(0,0,0,.1));
