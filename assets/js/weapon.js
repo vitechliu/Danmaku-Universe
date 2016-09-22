@@ -12,6 +12,7 @@ H-tripple H-dual 并排的二三连
 guard 防御
 spiral 螺旋状
 fast 
+sniper 狙击型武器
 
 子弹类型
 laser 匀速子弹武器
@@ -135,6 +136,33 @@ var standardWeapon = {
             };
         }
     },
+    sniper_laser_I:{
+        name:"Sniper Laser II",
+        hasSprites:false,
+        isDesigned:false,
+        isRandomed:false,
+        type:1,
+        frequency:120,
+        danmakuType:standardDanmaku.rec_bullet_II,
+        counterShield:false,
+        speedAdd:2,
+        damageAdd:4,
+        num:1,
+        price:2400,
+        tadpoleFuncWeapon:function(tadpole) {
+            var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
+            var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
+            var wa = tadpole.angle;
+            return {
+              x:wx,y:wy,a:wa  
+            };
+        },
+        xyaFuncDanmaku:function(x,y,a,n,t) {
+            return {
+              x:x,y:y,a:a
+            };
+        }
+    },
     guard_mine_I:{
         name:"Guard Mine 1",
         hasSprites:false,
@@ -190,6 +218,7 @@ var Weapon = function(wSettings,tadpole) {
     
     this.num = wSettings.num;
     this.pm = {};
+    this.slot = null;
     
     this.pm.damageAdd = this.damageAdd;
     this.pm.speedAdd = this.speedAdd;
@@ -242,6 +271,14 @@ var Weapon = function(wSettings,tadpole) {
         for (var i = weapon.danmaku.length-1;i>=0;i--) {
             weapon.danmaku[i].update(model);
             if(weapon.danmaku[i].die) weapon.danmaku.splice(i,1);
+        }
+        
+        //更新Load条
+        if (weapon.slot!=null) {
+            var h = 60*weapon.time/weapon.frequency;
+            var o = weapon.time/weapon.frequency;
+            $("#weaponBox"+weapon.slot+" .weaponLoad").css("height",h+"px");
+            $("#weaponBox"+weapon.slot+" .weaponLoad").css("opacity",o);
         }
     }
     

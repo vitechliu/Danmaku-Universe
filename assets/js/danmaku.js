@@ -36,6 +36,23 @@ var standardDanmaku = {
         penetrable:false,
         damage:50
     },
+    rec_bullet_II:{
+        type:"bullet",
+        shape:"rec",
+        height:1.2,
+        width:5,
+        speedFunc:function(time) {
+            return 8;
+        },
+        angleFunc:function(defaultAngle,time) {
+            return defaultAngle;
+        },
+        color:"rgba(255,255,255,",
+        opacity:0.9,
+        maxLife:1000,
+        penetrable:false,
+        damage:100
+    },
     circle_bullet_I:{
         type:"bullet",
         shape:"circle",
@@ -164,17 +181,9 @@ var Danmaku = function(model,dSettings,parameter) {
                 collisionY = danmaku.y;
             } break;
         } 
-        switch(danmaku.camp) {
-            case camp[0]:{ //玩家
-            for (var i in model.tadpoles) 
-                if (i!=-1 && model.tadpoles[i].camp == camp[2] && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
-            } break;
-            case camp[2]:{
-                for (var i in model.tadpoles) 
-                    if (model.tadpoles[i]!= danmaku.tadpole && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
-            } break;
-            default: {} break;
-        }
+        for (var i in model.tadpoles) 
+            if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp) && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
+        
     }
     
     this.update = function(model) {

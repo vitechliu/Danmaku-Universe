@@ -21,10 +21,9 @@ cjArr[3] = [true,true,true,true,true];
 
 cjArr[4] = [false,true,false,true,true];
 
-
 var cj = function (camp1,camp2) { //CampJudge
-    var c1 = $.inArray(camp,camp1),
-        c2 = $.inArray(camp,camp2);
+    var c1 = $.inArray(camp1,camp),
+        c2 = $.inArray(camp2,camp);
     return cjArr[c1][c2];
 }
 
@@ -70,6 +69,8 @@ var App = function(aCanvas) {
         statusText += "<i class=\"fa fa-fw\"></i>Position:  ("+model.userTadpole.x.toFixed(1)+",";
         statusText += model.userTadpole.y.toFixed(1)+")<br>";
         statusText += "<i class=\"fa fa-fw\"></i>Speed: "+model.userTadpole.speed.toFixed(1)+"<br>";
+        statusText += "<i class=\"fa fa-fw\"></i>Speed: "+model.userTadpole.shield.status+"<br>";
+        statusText += "<i class=\"fa fa-fw\"></i>Speed: "+model.userTadpole.shield.hp+"<br>";
         
         $("#selfStatusText").html(statusText);
         
@@ -363,7 +364,7 @@ var App = function(aCanvas) {
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
         model.userTadpole.shield = new Shield(standardShield.standard_I,model.userTadpole);
-        model.userTadpole.equip(new Weapon(standardWeapon.standard_laser_I,model.userTadpole),1,model);
+        model.userTadpole.equip(new Weapon(standardWeapon.sniper_laser_I,model.userTadpole),1,model);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
         //初始化UI

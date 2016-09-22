@@ -133,8 +133,8 @@ var Tadpole = function(tSettings) {
             throw "Not a valid weapon";
             return;
         }
-        tadpole.weapon[slot] = wp;
         if(tadpole == model.userTadpole) {
+            wp.slot = slot;
             var query1 = "#weaponBox"+slot+" img";
             var query2_1 = "#weaponData"+slot+"-1";
             var query2_2 = "#weaponData"+slot+"-2";
@@ -149,6 +149,7 @@ var Tadpole = function(tSettings) {
             $(query2_3).html(txt);
             $(query1).attr("src",model.source.image[wp.name].src);
         }
+        tadpole.weapon[slot] = wp;
     }
     this.fire = function(model) {
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
@@ -371,7 +372,7 @@ var Tadpole = function(tSettings) {
             tadpole.AI.status = 2;
         }
         tadpole.timeSinceLastServerUpdate = 0;
-        if (tadpole.shield!=null && !tadpole.shield.destroyed) tadpole.shield.onHit(danmaku.damage);
+        if (tadpole.shield!=null && tadpole.shield.status == 2) tadpole.shield.onHit(danmaku.damage);
         else tadpole.hp -= danmaku.damage;
         if (tadpole.hp <= 0) {
             tadpole.hp = 0;

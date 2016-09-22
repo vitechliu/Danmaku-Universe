@@ -32,10 +32,10 @@ var Shield = function(sSettings,tadpole) {
             if (shield.time == shield.revTime) shield.status = 1;
         } else if (shield.status == 1) {
             shield.opacity += 0.02;
-            if (shield.opacity == 0.5) shield.status = 2;
+            if (shield.opacity >= 0.5) shield.status = 2;
         } else if (shield.status == 3) {
             shield.opacity -= 0.02;
-            if (shield.opacity == 0) shield.status = 0;
+            if (shield.opacity <= 0) shield.status = 0;
         }
             
         shield.hp += (shield.hp<shield.capacity) ? shield.capacityRegen : 0;
@@ -54,6 +54,7 @@ var Shield = function(sSettings,tadpole) {
     this.onHit = function(dmg) {
         shield.hp -= dmg;
         if (shield.hp<0) {
+            shield.hp = shield.capacity;
             shield.time = 0;
             shield.status = 3;
         }

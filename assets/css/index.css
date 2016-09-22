@@ -312,7 +312,15 @@ strong {
 .weaponImg img{
     width:50px;
     height:50px;
-    
+}
+.weaponLoad {
+    position:absolute;
+    right:-3px;
+    bottom:0;
+    width:3px;
+    height:0;
+    background-color:rgba(100,150,255,.9);
+    opacity:0;
 }
 .barButton{
     position:absolute;
