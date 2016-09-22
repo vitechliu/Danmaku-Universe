@@ -10,16 +10,19 @@ for (var i=2;i<100;i++) {
 var Tadpole = function(tSettings) {
     var tadpole = this;
 
-    //全局属性
+    //全局属性-----------------------------------------------------
     this.hpmx = tSettings.hp || 1000;
     this.hp = tSettings.hp || 1000;
     this.hpRegen = tSettings.hpRegen || 0;
     this.die = false;
     this.camp = tSettings.camp || camp[1];
     
-    
     this.level = tSettings.level || 1;
     this.exp = tadpoleExp[this.level];
+    
+    this.shield = tSettings.shield || null;
+        
+    this.damageAdd = 0.2*this.level+0.8;  
     
     //AI
     this.AI = tSettings.AI || null;
@@ -29,7 +32,9 @@ var Tadpole = function(tSettings) {
     this.y = tSettings.y || Math.random() * 300 - 150;
     this.z = 100; //频道
     //圆的半径
-    this.size = tSettings.size || 6;
+    this.size = tSettings.size || 6; //碰撞半径
+    this.drawSize = this.size; //绘制半径 不变
+    
     //默认主炮塔绘制参数
     this.headSize = tSettings.headSize || 2;
     this.headAngle = tSettings.headAngle || Math.PI * 0.14;
@@ -107,8 +112,20 @@ var Tadpole = function(tSettings) {
     //无服务器加载时间
     this.timeSinceLastServerUpdate = 0;
     
+    
+    //武器部分------------------------------------------------------
     this.unEquip = function (slot,model) {
         tadpole.weapon[slot] = null;
+        if(tadpole == model.userTadpole) {
+            var query1 = "#weaponBox"+slot+" img";
+            var query2_1 = "#weaponData"+slot+"-1";
+            var query2_2 = "#weaponData"+slot+"-2";
+            var query2_3 = "#weaponData"+slot+"-3";
+            $(query2_1).html("");
+            $(query2_2).html("");
+            $(query2_3).html("");
+            $(query1).attr("src",model.source.image["none"].src);
+        }
         //
     }
     this.equip = function(wp,slot,model) {
@@ -147,7 +164,9 @@ var Tadpole = function(tSettings) {
             if (tadpole.weapon[i] != null) tadpole.weapon[i].cease();
         }
     };
-
+    
+    
+    //更新-----------------------------------------------
     this.update = function(mouse, model) {
         tadpole.timeSinceLastServerUpdate++;
 
@@ -205,18 +224,24 @@ var Tadpole = function(tSettings) {
 
         //更新尾巴
         //tadpole.tail.update();
+        
         //更新武器
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
             if (tadpole.weapon[i] != null) tadpole.weapon[i].update(tadpole, model);
         }
-
+        
+        //更新护盾
+        if (tadpole.shield!=null) tadpole.shield.update();
+        
         //开火
         if (tadpole.onFire) tadpole.fire(model);
 
-        //判断死亡
-        
+        //回复血量
         tadpole.hp += (tadpole.hp<tadpole.hpmx) ? tadpole.hpRegen : 0;
-
+        
+        //更新主机判定体积
+        if (tadpole.shield!=null && tadpole.shield.status == 2) tadpole.size = tadpole.shield.size;
+        else tadpole.size = tSettings.size || 6;
     };
 
     //如果认证了,点击出twitter地址
@@ -305,16 +330,16 @@ var Tadpole = function(tSettings) {
 
         //画圆
         context.beginPath();
-        context.arc(tadpole.x, tadpole.y, tadpole.size, 0, Math.PI * 2, true);
+        context.arc(tadpole.x, tadpole.y, tadpole.drawSize, 0, Math.PI * 2, true);
         context.closePath();
         context.fill();
 
         //画三角头
         context.beginPath();
 
-        context.moveTo(tadpole.x + (tadpole.size + tadpole.headDistance + tadpole.headSize) * Math.cos(tadpole.angle), tadpole.y + (tadpole.size + tadpole.headDistance + tadpole.headSize) * Math.sin(tadpole.angle));
-        context.lineTo(tadpole.x + (tadpole.size + tadpole.headDistance) * Math.cos(tadpole.angle - tadpole.headAngle), tadpole.y + (tadpole.size + tadpole.headDistance) * Math.sin(tadpole.angle - tadpole.headAngle));
-        context.lineTo(tadpole.x + (tadpole.size + tadpole.headDistance) * Math.cos(tadpole.angle + tadpole.headAngle), tadpole.y + (tadpole.size + tadpole.headDistance) * Math.sin(tadpole.angle + tadpole.headAngle));
+        context.moveTo(tadpole.x + (tadpole.drawSize + tadpole.headDistance + tadpole.headSize) * Math.cos(tadpole.angle), tadpole.y + (tadpole.drawSize + tadpole.headDistance + tadpole.headSize) * Math.sin(tadpole.angle));
+        context.lineTo(tadpole.x + (tadpole.drawSize + tadpole.headDistance) * Math.cos(tadpole.angle - tadpole.headAngle), tadpole.y + (tadpole.drawSize + tadpole.headDistance) * Math.sin(tadpole.angle - tadpole.headAngle));
+        context.lineTo(tadpole.x + (tadpole.drawSize + tadpole.headDistance) * Math.cos(tadpole.angle + tadpole.headAngle), tadpole.y + (tadpole.drawSize + tadpole.headDistance) * Math.sin(tadpole.angle + tadpole.headAngle));
 
         context.closePath();
         context.fill();
@@ -327,7 +352,9 @@ var Tadpole = function(tSettings) {
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
             if (tadpole.weapon[i] != null) tadpole.weapon[i].draw(context);
         }
-
+        
+        //画护盾
+        if (tadpole.shield!=null && tadpole.shield.status != 0) tadpole.shield.draw(context);
 
         drawName(context);
         drawMessages(context);
@@ -344,7 +371,8 @@ var Tadpole = function(tSettings) {
             tadpole.AI.status = 2;
         }
         tadpole.timeSinceLastServerUpdate = 0;
-        tadpole.hp -= danmaku.damage;
+        if (tadpole.shield!=null && !tadpole.shield.destroyed) tadpole.shield.onHit(danmaku.damage);
+        else tadpole.hp -= danmaku.damage;
         if (tadpole.hp <= 0) {
             tadpole.hp = 0;
             tadpole.die = true;
@@ -404,9 +432,9 @@ var Tadpole = function(tSettings) {
         context.save();
         context.strokeStyle = getCampColor() + "0.6)";
         context.fillStyle = getCampColor() + "1)";
-        context.strokeRect(tadpole.x - tadpole.size * 2.4, tadpole.y - tadpole.size * 2.2, tadpole.size * 4.8, tadpole.size / 3);
+        context.strokeRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, tadpole.drawSize * 4.8, tadpole.drawSize / 3);
         var percent = (tadpole.hp / tadpole.hpmx).toFixed(3);
-        context.fillRect(tadpole.x - tadpole.size * 2.4, tadpole.y - tadpole.size * 2.2, percent * tadpole.size * 4.8, tadpole.size / 3);
+        context.fillRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, percent * tadpole.drawSize * 4.8, tadpole.drawSize / 3);
         context.restore();
     }
     var drawName = function(context) {

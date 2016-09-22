@@ -360,9 +360,9 @@ var App = function(aCanvas) {
         var userT = {};
         userT.camp = camp[0];
         userT.hpRegen = 0.01;
-        
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
+        model.userTadpole.shield = new Shield(standardShield.standard_I,model.userTadpole);
         model.userTadpole.equip(new Weapon(standardWeapon.standard_laser_I,model.userTadpole),1,model);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
@@ -427,7 +427,7 @@ var App = function(aCanvas) {
             var radius = radius || 1000;
             var num = 0;
             for (var i in model.tadpoles) 
-                if (!cj[model.tadpoles[i].camp,self.camp] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
+                if (!cj[model.tadpoles[i].camp,self.camp] && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
                     num++;
             return num;
 
@@ -440,7 +440,7 @@ var App = function(aCanvas) {
         model.getEnemy = function(self,radius) {
             var enemy = [];
             for (var i in model.tadpoles) 
-                if (!cj[model.tadpoles[i].camp,self.camp] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
+                if (!cj[model.tadpoles[i].camp,self.camp] && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
                     enemy.push(model.tadpoles[i]);
             return enemy;
         };
@@ -449,7 +449,7 @@ var App = function(aCanvas) {
             var d = d || 1000;
             var enemy = null;
             for (var i in model.tadpoles) 
-                if (!cj[model.tadpoles[i].camp,self.camp] && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d)
+                if (!cj[model.tadpoles[i].camp,self.camp] && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d)
                     enemy = model.tadpoles[i];
             return enemy;
         }

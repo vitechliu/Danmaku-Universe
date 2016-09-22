@@ -54,6 +54,7 @@ var MessageHandler = function(model) {
         messageHandler.popMessage("/keywasd : 修改基础操作方式为WASD操作","info");
         messageHandler.popMessage("/keyarrow : 修改基础操作方式为方向键操作","info");
         messageHandler.popMessage("/addEnemy [AI] [数量]: 生成特定AI的敌机","info");
+        messageHandler.popMessage("/setWeapon [武器] [槽位(1-4)]: 替换自机武器","info");
     }
     
     var handleKeyArrow = function() {
@@ -90,6 +91,7 @@ var MessageHandler = function(model) {
         }
     }
     
+    //添加敌人
     var handleAddEnemy = function(AIinput,num) {
         var success = true;
         try {
@@ -114,6 +116,18 @@ var MessageHandler = function(model) {
             messageHandler.popMessage("生成了敌机.","server");
         }
     }
+    
+    //弹出消息测试
+    var handleNotice = function(s,t) {
+        try {
+            model.noticeHandler.pushNotice(s,t);
+        } catch(e) {
+            console.log(e);
+        } 
+    }
+    
+    
+    
     //指令对应表
     var msgType = [{
         pattern:/^\/setname (\S+)$/i,
@@ -143,6 +157,10 @@ var MessageHandler = function(model) {
         pattern:/^\/addEnemy (\S+) ([1-9]\d*)$/i,
         arg:2,
         func:handleAddEnemy
+    },{
+        pattern:/^\/notice (\S+) ([1-9]\d*)$/i,
+        arg:2,
+        func:handleNotice
     }];
     
     
