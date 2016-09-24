@@ -26,7 +26,8 @@ var Tadpole = function(tSettings) {
     
     //AI
     this.AI = tSettings.AI || null;
-
+    this.isLeader = tSettings.isLeader || false; //是否是旗舰
+    
     //初始位置随机 300*300矩形内
     this.x = tSettings.x || Math.random() * 300 - 150;
     this.y = tSettings.y || Math.random() * 300 - 150;
@@ -178,7 +179,10 @@ var Tadpole = function(tSettings) {
             var condition = {};
             condition.enemyNum = model.getEnemyNum(tadpole, tadpole.AI.vision);
             condition.closeEnemy = model.getCloseEnemy(tadpole, tadpole.AI.vision);
+            if(tadpole.AI.name == "Following") condition.following = model.getFollowingTadpole(tadpole, tadpole.AI.vision);
             tadpole.AI.update(tadpole, condition);
+            
+            //console.log(condition.closeEnemy);
         }
 
         //--------------物理引擎开始--------------

@@ -22,11 +22,11 @@ cjArr[3] = [true,true,true,true,true];
 cjArr[4] = [false,true,false,true,true];
 
 var cj = function (camp1,camp2) { //CampJudge
+    
     var c1 = $.inArray(camp1,camp),
         c2 = $.inArray(camp2,camp);
     return cjArr[c1][c2];
 }
-
 
 var getDistance = function(x1,y1,x2,y2) {
     return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
@@ -416,7 +416,8 @@ var App = function(aCanvas) {
         st.y = 0;
         st.AI = new AI(standardAI.enemy_floating);
         st.name = "testFloating";
-        st.camp = camp[2];
+        st.camp = camp[4];
+        st.isLeader = true;
         st.speedMax = 1;
         st.standardAcc = 0.25;
         st.friction =0.05;
@@ -425,11 +426,13 @@ var App = function(aCanvas) {
         //----------------
         //model全局判断附近敌人数量
         model.getEnemyNum = function(self,radius) {
+            
             var radius = radius || 1000;
             var num = 0;
             for (var i in model.tadpoles) 
-                if (!cj[model.tadpoles[i].camp,self.camp] && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
+                if (!cj(model.tadpoles[i].camp,self.camp) && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius) {
                     num++;
+                }
             return num;
 
         };
@@ -441,7 +444,7 @@ var App = function(aCanvas) {
         model.getEnemy = function(self,radius) {
             var enemy = [];
             for (var i in model.tadpoles) 
-                if (!cj[model.tadpoles[i].camp,self.camp] && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
+                if (!cj(model.tadpoles[i].camp,self.camp) && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=radius)
                     enemy.push(model.tadpoles[i]);
             return enemy;
         };
@@ -450,10 +453,19 @@ var App = function(aCanvas) {
             var d = d || 1000;
             var enemy = null;
             for (var i in model.tadpoles) 
-                if (!cj[model.tadpoles[i].camp,self.camp] && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d)
+                if (!cj(model.tadpoles[i].camp,self.camp) && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d)
                     enemy = model.tadpoles[i];
             return enemy;
-        }
+        };
+        
+        model.getFollowingTadpole = function(self,d) {
+            var d = d || 1000;
+            var follow = null;
+            for (var i in model.tadpoles) 
+                if (model.tadpoles[i].isLeader && model.tadpoles[i].camp == self.camp && model.tadpoles[i]!=self && getDistance(self.x,self.y,model.tadpoles[i].x,model.tadpoles[i].y)<=d)
+                    follow = model.tadpoles[i];
+            return follow;
+        };
         
         $(function(){
             
