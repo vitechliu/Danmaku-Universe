@@ -129,6 +129,7 @@ var Tadpole = function(tSettings) {
         }
         //
     }
+    
     this.equip = function(wp,slot,model) {
         if (typeof wp.danmakuType == undefined) {
             throw "Not a valid weapon";
