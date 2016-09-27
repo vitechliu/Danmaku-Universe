@@ -84,6 +84,20 @@ var standardDanmaku = {
         maxLife:1500,
         penetrable:false,
         damage:50
+    },
+    
+    standard_beam_I:{ //激光
+        type:"beam",
+        shape:"line",
+        width:0.3,
+        distance:300,
+        damage:1,
+        damageFurtherLower:false, //是否衰减
+        penetrable:true, //穿透 待完善
+        maxLife:3,
+        color:"rgba(255,255,255,",
+        opacity:0.9,
+        blur:2
     }
 }
 
@@ -154,6 +168,20 @@ var Danmaku = function(model,dSettings,parameter) {
             this.opacity = dSettings.opacity;
             this.penetrable = dSettings.penetrable;
         } break;
+        case "beam": {
+            this.shape = dSettings.shape;
+            switch(this.shape) {
+                case "line":{
+                    this.width = dSettings.width();
+                    this.distance = dSettings.distance();
+                } break;
+                default: {} break;
+            }
+            this.damage = dSettings.damage;
+            this.damageFurtherLower = dSettings.damageFurtherLower;
+            this.penetrable = dSettings.penetrable;
+            //待补充
+        }
         default: {} break;
     }
     

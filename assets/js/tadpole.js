@@ -432,15 +432,39 @@ var Tadpole = function(tSettings) {
                 return "rgba(255,100,100,"
             }
             break;
+        case camp[4]:
+            {
+                return "rgba(100,100,100,"
+            }
+            break;
         }
     }
+    //血条和护盾条
     var drawHp = function(context) {
+        var minus = tadpole.shield!=null ? tadpole.drawSize/2 : 0;
         context.save();
         context.strokeStyle = getCampColor() + "0.6)";
         context.fillStyle = getCampColor() + "1)";
-        context.strokeRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, tadpole.drawSize * 4.8, tadpole.drawSize / 3);
+        context.strokeRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2-minus, tadpole.drawSize * 4.8, tadpole.drawSize / 3);
         var percent = (tadpole.hp / tadpole.hpmx).toFixed(3);
-        context.fillRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, percent * tadpole.drawSize * 4.8, tadpole.drawSize / 3);
+        context.fillRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2-minus, percent * tadpole.drawSize * 4.8, tadpole.drawSize / 3);
+        
+        if (tadpole.shield!=null) {
+            if (tadpole.shield.status == 2) {
+                context.strokeStyle = "rgba(100,200,255,0.6)";
+                context.fillStyle = "rgba(100,200,255,1)";
+                context.strokeRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, tadpole.drawSize * 4.8, tadpole.drawSize / 4);
+                var percent = (tadpole.shield.hp / tadpole.shield.capacity).toFixed(3);
+                context.fillRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, percent * tadpole.drawSize * 4.8, tadpole.drawSize / 4);
+            } else if (tadpole.shield.status == 0) {
+                context.strokeStyle = "rgba(200,100,55,0.6)";
+                context.fillStyle = "rgba(200,100,55,1)";
+                context.strokeRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, tadpole.drawSize * 4.8, tadpole.drawSize / 4);
+                var percent = (tadpole.shield.time / tadpole.shield.revTime).toFixed(3);
+                context.fillRect(tadpole.x - tadpole.drawSize * 2.4, tadpole.y - tadpole.drawSize * 2.2, percent * tadpole.drawSize * 4.8, tadpole.drawSize / 4);
+            }
+            
+        }
         context.restore();
     }
     var drawName = function(context) {
