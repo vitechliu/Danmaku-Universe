@@ -46,7 +46,7 @@ var standardAI = {
 
                 var e = tadpole.AI.target;
                 tadpole.userUpdate(e.x, e.y, null);
-                
+
                 tadpole.AI.direction = Math.atan2(e.y - tadpole.y, e.x - tadpole.x);
                 if (tadpole.speed < tadpole.speedMax && getDistance(e.x, e.y, tadpole.x, tadpole.y) > tadpole.AI.vision) tadpole.motion_add(tadpole.AI.direction, 0.5 * tadpole.standardAcc);
                 if (Math.cos(Math.atan2(e.y - tadpole.y, e.x - tadpole.x) - tadpole.angle) > 0.99) tadpole.onFire = true;
@@ -57,7 +57,7 @@ var standardAI = {
             return;
         },
         vision: 150,
-        outVision: 1500
+        outVision: 600
         //outVision为放弃追踪的最大距离
     },
     enemy_following: { //跟随附近isLeader = true的同类机体
@@ -75,6 +75,9 @@ var standardAI = {
                 } else {
                     if (condition.following != null) {
                         tadpole.AI.status = 3;
+                    } else if (condition.following.AI != null && condition.following.AI.status == 2) {
+                        tadpole.AI.status = 2;
+                        tadpole.AI.target = condition.following.AI.target;
                     } else {
                         if (tadpole.age % tadpole.AI.change == 0) {
                             tadpole.AI.direction += 0.5 * (Math.random() - 0.5) * Math.PI;
@@ -89,7 +92,7 @@ var standardAI = {
 
                 var e = tadpole.AI.target;
                 tadpole.userUpdate(e.x, e.y, null);
-                
+
                 tadpole.AI.direction = Math.atan2(e.y - tadpole.y, e.x - tadpole.x);
                 if (tadpole.speed < tadpole.speedMax && getDistance(e.x, e.y, tadpole.x, tadpole.y) > tadpole.AI.vision) tadpole.motion_add(tadpole.AI.direction, 0.5 * tadpole.standardAcc);
                 if (Math.cos(Math.atan2(e.y - tadpole.y, e.x - tadpole.x) - tadpole.angle) > 0.99) tadpole.onFire = true;
@@ -97,12 +100,12 @@ var standardAI = {
 
                 if (e.die || getDistance(e.x, e.y, tadpole.x, tadpole.y) > tadpole.AI.outVision) tadpole.AI.status = 1;
             } else { // == 3
-                if (condition.following == null) tadpole.AI.status == 1;
+                if (condition.following == null) tadpole.AI.status = 1;
                 else {
                     var t = condition.following;
-                    
+
                     tadpole.userUpdate(t.x, t.y, null);
-                
+
                     tadpole.AI.direction = Math.atan2(t.y - tadpole.y, t.x - tadpole.x);
                     if (tadpole.speed < tadpole.speedMax && getDistance(t.x, t.y, tadpole.x, tadpole.y) > tadpole.AI.vision) tadpole.motion_add(tadpole.AI.direction, 0.5 * tadpole.standardAcc);
                     tadpole.timeSinceLastServerUpdate = 0;
@@ -111,8 +114,10 @@ var standardAI = {
             }
             return;
         },
+        followVision: 600,
+        //followVision为追踪范围
         vision: 150,
-        outVision: 1500
+        outVision: 600
         //outVision为放弃追踪的最大距离
     },
 }
@@ -128,9 +133,6 @@ var AI = function(aiSettings) {
     this.target = null;
     this.update = aiSettings.control;
 }
-
-
-
 
 /*
 

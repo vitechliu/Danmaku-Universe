@@ -180,7 +180,7 @@ var Tadpole = function(tSettings) {
             var condition = {};
             condition.enemyNum = model.getEnemyNum(tadpole, tadpole.AI.vision);
             condition.closeEnemy = model.getCloseEnemy(tadpole, tadpole.AI.vision);
-            if(tadpole.AI.name == "Following") condition.following = model.getFollowingTadpole(tadpole, tadpole.AI.vision);
+            if(tadpole.AI.name == "Following") condition.following = model.getFollowingTadpole(tadpole, tadpole.AI.followVision);
             tadpole.AI.update(tadpole, condition);
             
             //console.log(condition.closeEnemy);

@@ -39,6 +39,14 @@ var standardEffect = {
             endSize:2,
             blur:6
         },
+        super_small:{
+            type:"particles",
+            particleNum:2,
+            fadeStartTime:15,
+            fadeEndTime:90,
+            startSpeed:0.6,
+            endSpeed:1.2
+        },
     },
     ring:{
         small_out:{

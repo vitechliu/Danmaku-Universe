@@ -31,7 +31,6 @@ var standardWeapon = {
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
-        type:1,
         frequency:10,
         danmakuType:standardDanmaku.rec_bullet_I,
         counterShield:false,
@@ -58,7 +57,6 @@ var standardWeapon = {
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
-        type:1,
         frequency:22,
         danmakuType:standardDanmaku.rec_bullet_I,
         counterShield:false,
@@ -85,7 +83,6 @@ var standardWeapon = {
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
-        type:1,
         frequency:240,
         danmakuType:standardDanmaku.rec_bullet_I,
         counterShield:false,
@@ -112,7 +109,6 @@ var standardWeapon = {
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
-        type:1,
         frequency:2,
         danmakuType:standardDanmaku.rec_bullet_I,
         counterShield:false,
@@ -141,7 +137,6 @@ var standardWeapon = {
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
-        type:1,
         frequency:120,
         danmakuType:standardDanmaku.rec_bullet_II,
         counterShield:false,
@@ -168,7 +163,6 @@ var standardWeapon = {
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
-        type:1,
         frequency:10,
         danmakuType:standardDanmaku.slowMine_circle_bullet_I,
         counterShield:false,
@@ -185,6 +179,32 @@ var standardWeapon = {
             };
         },
         xyaFuncDanmaku:function(x,y,a,n,t) {
+            return {
+              x:x,y:y,a:a
+            };
+        }
+    },
+    standard_beam_I:{
+        name:"Standard Beam I",
+        hasSprites:false,
+        isDesigned:false,
+        isRandomed:false,
+        frequency:3,
+        danmakuType:standardDanmaku.rec_beam_I,
+        counterShield:false,
+        speedAdd:1,
+        damageAdd:1,
+        num:1,
+        price:100,
+        tadpoleFuncWeapon:function(tadpole) {
+            var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
+            var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
+            var wa = tadpole.angle;
+            return {
+              x:wx,y:wy,a:wa  
+            };
+        },
+        xyaFuncDanmaku:function(x,y,a,n) {
             return {
               x:x,y:y,a:a
             };

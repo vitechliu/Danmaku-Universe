@@ -86,18 +86,19 @@ var standardDanmaku = {
         damage:50
     },
     
-    standard_beam_I:{ //激光
+    rec_beam_I:{ //激光
         type:"beam",
         shape:"line",
         width:0.3,
-        distance:300,
+        distance:500,
         damage:1,
         damageFurtherLower:false, //是否衰减
         penetrable:true, //穿透 待完善
-        maxLife:3,
+        maxLife:5,
         color:"rgba(255,255,255,",
         opacity:0.9,
-        blur:2
+        blur:2,
+        effect:standardEffect.particles.super_small
     }
 }
 
@@ -113,6 +114,15 @@ var cldCircleCircle = function(cx1,cy1,cr1,cx2,cy2,cr2) {
 var cldPointRectangle = function(px,py,rx,ry,rw,rh,ra) { //矩形x,y指中心点 待完善
     if (true) return true;
     else return false;
+}
+var cldCircleLine = function(cx,cy,cr,lx1,lx2,ly1,ly2) {
+    var dis = Math.abs((ly2-ly1)*cx+(lx1-lx2)*cy+ly1*lx2-lx1*ly2)/Math.sqrt((ly2-ly1)*(ly2-ly1)+(lx2-lx1)*(lx2-lx1));
+    var ans = {};
+    //待完善
+    if (dis<cr) {
+        ans.b = true;
+    } else {}
+    return ans;
 }
 var getPEAngle = function(tadpole,x,y) { //返回粒子特效角度
     var a = Math.atan2(y-tadpole.y,x-tadpole.x);
@@ -136,6 +146,7 @@ var Danmaku = function(model,dSettings,parameter) {
     this.damageAdd = parameter.damageAdd || 1;
     this.camp = parameter.camp;
     this.tadpole = parameter.tadpole;
+    this.effect = dSettings.effect || standardEffect.particles.small;
     
     function drawRect(x,y,w,h,a,ctx) {
         ctx.beginPath();
@@ -177,17 +188,22 @@ var Danmaku = function(model,dSettings,parameter) {
                 } break;
                 default: {} break;
             }
-            this.damage = dSettings.damage;
+            this.damage = dSettings.damage * this.damageAdd * this.tadpole.damageAdd;;
             this.damageFurtherLower = dSettings.damageFurtherLower;
             this.penetrable = dSettings.penetrable;
+            this.color = dSettings.color;
+            this.opacity = dSettings.opacity;
+            
+            this.onHitting = false; //穿透型激光是否击中敌人中
             //待补充
         }
         default: {} break;
     }
     
+    //bullet的碰撞检测--------------------------
     function whenCollision(tadpole) { //发生碰撞
         var a = getPEAngle(tadpole,danmaku.x,danmaku.y);
-        model.effects.push(new Effect(standardEffect.particles.small,danmaku.x,danmaku.y,a.start,a.end));
+        model.effects.push(new Effect(danmaku.effect,danmaku.x,danmaku.y,a.start,a.end));
         if(!danmaku.penetrable) danmaku.die = true;
         tadpole.onHit(model,danmaku);
     }
@@ -197,6 +213,33 @@ var Danmaku = function(model,dSettings,parameter) {
         var collisionY;
         switch(danmaku.shape) {
             case "rec":{
+                collisionX = danmaku.x+0.5*danmaku.width*Math.cos(danmaku.angle)-0.5*danmaku.height*Math.sin(danmaku.angle);
+                collisionY = danmaku.y+0.5*danmaku.width*Math.sin(danmaku.angle)-0.5*danmaku.height*Math.cos(danmaku.angle);
+            } break;
+            case "circle":{
+                collisionX = danmaku.x;
+                collisionY = danmaku.y;
+            } break;
+            default:{
+                collisionX = danmaku.x;
+                collisionY = danmaku.y;
+            } break;
+        } 
+        for (var i in model.tadpoles) 
+            if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp) && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
+        
+    }
+    //beam的碰撞检测--------------------------
+    function whenCollision_beam(tadpole) { //发生碰撞
+        var a = getPEAngle(tadpole,danmaku.x,danmaku.y);
+        model.effects.push(new Effect(danmaku.effect,danmaku.x,danmaku.y,a.start,a.end));
+        if(!danmaku.penetrable) danmaku.die = true;
+        tadpole.onHit(model,danmaku);
+    }
+    
+    function checkCollision_beam(model) {
+        switch(danmaku.shape) {
+            case "line":{
                 collisionX = danmaku.x+0.5*danmaku.width*Math.cos(danmaku.angle)-0.5*danmaku.height*Math.sin(danmaku.angle);
                 collisionY = danmaku.y+0.5*danmaku.width*Math.sin(danmaku.angle)-0.5*danmaku.height*Math.cos(danmaku.angle);
             } break;
@@ -232,6 +275,12 @@ var Danmaku = function(model,dSettings,parameter) {
                 if (model.getDistance(danmaku.x,danmaku.y,model.userTadpole.x,model.userTadpole.y)>2000) danmaku.die = true;
                 if (danmaku.life == danmaku.maxLife) danmaku.die = true;
             } break;
+            case "beam":{
+                danmaku.opacity *= 0.8;
+                
+                checkCollision_beam(model);
+                if (danmaku.life == danmaku.maxLife) danmaku.die = true;
+            } break;
             default: {} break;
         }
     }
@@ -253,8 +302,16 @@ var Danmaku = function(model,dSettings,parameter) {
                     } break;
                     default: {} break;
                 }
-                
-                if (danmaku.life == danmaku.maxLife) danmaku.die = true;
+            } break;
+            case "beam":{
+                switch(danmaku.shape) {
+                    case "line":{
+                        context.fillStyle = danmaku.color+danmaku.opacity+")";
+                        /*激光穿透部分*/
+                        drawRect(danmaku.x,danmaku.y,danmaku.distance,danmaku.width,danmaku.angle,context);
+                    } break;
+                    default:{} break;
+                }
             } break;
             default: {} break;
         }
