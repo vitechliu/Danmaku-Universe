@@ -189,7 +189,7 @@ var standardWeapon = {
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
-        frequency:3,
+        frequency:1,
         danmakuType:standardDanmaku.rec_beam_I,
         counterShield:false,
         speedAdd:1,

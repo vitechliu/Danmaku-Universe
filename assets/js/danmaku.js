@@ -97,10 +97,10 @@ var standardDanmaku = {
         distance:500,
         damage:1,
         damageFurtherLower:false, //是否衰减
-        penetrable:true, //穿透 待完善
+        penetrable:false, //穿透
         maxLife:15,
         color:"rgba(255,255,255,",
-        opacity:1,
+        opacity:.7,
         blur:3,
         effect:standardEffect.particles.super_small
     }
@@ -193,6 +193,7 @@ var Danmaku = function(model,dSettings,parameter) {
     this.tadpole = parameter.tadpole;
     this.effect = dSettings.effect || standardEffect.particles.small;
     this.blur = dSettings.blur || 0;
+
     
     function drawRect(x,y,w,h,a,ctx) {
         ctx.beginPath();
@@ -248,6 +249,7 @@ var Danmaku = function(model,dSettings,parameter) {
                 case "line":{
                     this.width = dSettings.width;
                     this.distance = dSettings.distance;
+                    this.showDistance = dSettings.distance;
                 } break;
                 default: {} break;
             }
@@ -296,11 +298,14 @@ var Danmaku = function(model,dSettings,parameter) {
     function whenCollision_beam(tadpole,px,py) { //发生碰撞
         var a = getPEAngle(tadpole,px,py);
         model.effects.push(new Effect(danmaku.effect,px,py,a.start,a.end));
-        if(!danmaku.penetrable) danmaku.die = true;
         tadpole.onHit(model,danmaku);
     }
     
     function checkCollision_beam(model) {
+        if (!danmaku.penetrable) {
+            danmaku.onHitting = false;
+            danmaku.distance = danmaku.showDistance;
+        }
         switch(danmaku.shape) {
             case "line":{
                 var lx1 = danmaku.x,
@@ -311,7 +316,14 @@ var Danmaku = function(model,dSettings,parameter) {
                 for (var i in model.tadpoles) 
                     if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp)) {
                         var cld = cldCircleLine_beam(model.tadpoles[i],lx1,ly1,lx2,ly2);
-                        if (cld.b) whenCollision_beam(model.tadpoles[i],cld.x,cld.y);
+                        if (cld.b) {
+                            whenCollision_beam(model.tadpoles[i],cld.x,cld.y);
+                            if (!danmaku.penetrable) {
+                                danmaku.onHitting = true; 
+                                danmaku.distance = 1+getDistance(danmaku.x,danmaku.y,cld.x,cld.y);
+                                //console.log(danmaku.die);
+                            }
+                        }
                     }
             } break;
             default:{
