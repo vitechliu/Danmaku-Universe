@@ -41,7 +41,7 @@ var standardEffect = {
         },
         super_small:{
             type:"particles",
-            particleNum:2,
+            particleNum:1,
             fadeStartTime:15,
             fadeEndTime:90,
             startSpeed:0.6,

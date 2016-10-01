@@ -16,6 +16,10 @@ shape :
 
 type:
 bullet子弹
+beam激光
+
+子弹的xy为子弹的中心，如矩形中心，圆形中心等
+激光的xy为激光初始点
 
 */
 var standardDanmaku = {
@@ -89,15 +93,15 @@ var standardDanmaku = {
     rec_beam_I:{ //激光
         type:"beam",
         shape:"line",
-        width:0.3,
+        width:1,
         distance:500,
         damage:1,
         damageFurtherLower:false, //是否衰减
         penetrable:true, //穿透 待完善
-        maxLife:5,
+        maxLife:15,
         color:"rgba(255,255,255,",
-        opacity:0.9,
-        blur:2,
+        opacity:1,
+        blur:3,
         effect:standardEffect.particles.super_small
     }
 }
@@ -115,15 +119,56 @@ var cldPointRectangle = function(px,py,rx,ry,rw,rh,ra) { //矩形x,y指中心点
     if (true) return true;
     else return false;
 }
-var cldCircleLine = function(cx,cy,cr,lx1,lx2,ly1,ly2) {
-    var dis = Math.abs((ly2-ly1)*cx+(lx1-lx2)*cy+ly1*lx2-lx1*ly2)/Math.sqrt((ly2-ly1)*(ly2-ly1)+(lx2-lx1)*(lx2-lx1));
+var cldCircleLine = function(cx,cy,cr,lx1,ly1,lx2,ly2) { //线段与圆碰撞,返回碰撞点
+    var a = (lx2-lx1)*(lx2-lx1)+(ly2-ly1)*(ly2-ly1),
+        b = 2*((lx2-lx1)*(lx1-cx)+(ly2-ly1)*(ly1-cy)),
+        c = (lx1-cx)*(lx1-cx)+(ly1-cy)*(ly1-cy)-cr*cr,
+        delta = b*b-4*a*c,
+        t0 = -b/(2*a);
     var ans = {};
-    //待完善
-    if (dis<cr) {
+    if (delta==0 && 0<= t0 && t0<=1) {
         ans.b = true;
-    } else {}
+        ans.x = (lx2-lx1)*t0+lx1;
+        ans.y = (ly2-ly1)*t0+ly1;
+    } else {
+        if(c*(a+b+c)<0) {
+            ans.b = true;
+            if (t0<0.5) {
+                var t2 = (-b+Math.sqrt(delta))/(2*a);
+                ans.x = (lx2-lx1)*t2+lx1;
+                ans.y = (ly2-ly1)*t2+ly1;
+            } else {
+                var t1 = (-b-Math.sqrt(delta))/(2*a);
+                ans.x = (lx2-lx1)*t1+lx1;
+                ans.y = (ly2-ly1)*t1+ly1;
+            }
+        } else {
+            if (delta>0 && 0<= t0 && t0<=1) { 
+                ans.b = true;
+                //判断碰撞点
+                var t1 = (-b-Math.sqrt(delta))/(2*a),
+                    t2 = (-b+Math.sqrt(delta))/(2*a),
+                    d1 = getDistance((lx2-lx1)*t1+lx1,(ly2-ly1)*t1+ly1,lx1,ly1),
+                    d2 = getDistance((lx2-lx1)*t2+lx1,(ly2-ly1)*t2+ly1,lx1,ly1);
+                if (d1<d2) {
+                    ans.x = (lx2-lx1)*t1+lx1;
+                    ans.y = (ly2-ly1)*t1+ly1;
+                } else {
+                    ans.x = (lx2-lx1)*t2+lx1;
+                    ans.y = (ly2-ly1)*t2+ly1;
+                }
+            } else {
+                ans.b = false;
+            }
+        }
+    }
     return ans;
 }
+
+var cldCircleLine_beam = function(tadpole,lx1,ly1,lx2,ly2) { //激光
+    return cldCircleLine(tadpole.x,tadpole.y,tadpole.size,lx1,ly1,lx2,ly2);
+}
+
 var getPEAngle = function(tadpole,x,y) { //返回粒子特效角度
     var a = Math.atan2(y-tadpole.y,x-tadpole.x);
     return {
@@ -147,6 +192,7 @@ var Danmaku = function(model,dSettings,parameter) {
     this.camp = parameter.camp;
     this.tadpole = parameter.tadpole;
     this.effect = dSettings.effect || standardEffect.particles.small;
+    this.blur = dSettings.blur || 0;
     
     function drawRect(x,y,w,h,a,ctx) {
         ctx.beginPath();
@@ -156,6 +202,23 @@ var Danmaku = function(model,dSettings,parameter) {
         ctx.lineTo(x+0.5*h*Math.sin(a)+0.5*w*Math.cos(a),y-0.5*h*Math.cos(a)+0.5*w*Math.sin(a));
         ctx.closePath();
         ctx.fill();
+    }
+    
+    function drawBeam(x,y,w,h,a,ctx) { //画激光 初始点为激光始发点w实为distance h实为width
+        ctx.beginPath();
+        ctx.moveTo(x+0.5*h*Math.sin(a),y-0.5*h*Math.cos(a));
+        ctx.lineTo(x-0.5*h*Math.sin(a),y+0.5*h*Math.cos(a));
+        ctx.lineTo(x-0.5*h*Math.sin(a)+w*Math.cos(a),y+0.5*h*Math.cos(a)+w*Math.sin(a));
+        ctx.lineTo(x+0.5*h*Math.sin(a)+w*Math.cos(a),y-0.5*h*Math.cos(a)+w*Math.sin(a));
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+    function getEndPoint(x,y,d,a) { 
+        return {
+            x:x+d*Math.cos(a),
+            y:y+d*Math.sin(a)
+        }
     }
     
     switch(this.type) {
@@ -183,8 +246,8 @@ var Danmaku = function(model,dSettings,parameter) {
             this.shape = dSettings.shape;
             switch(this.shape) {
                 case "line":{
-                    this.width = dSettings.width();
-                    this.distance = dSettings.distance();
+                    this.width = dSettings.width;
+                    this.distance = dSettings.distance;
                 } break;
                 default: {} break;
             }
@@ -230,9 +293,9 @@ var Danmaku = function(model,dSettings,parameter) {
         
     }
     //beam的碰撞检测--------------------------
-    function whenCollision_beam(tadpole) { //发生碰撞
-        var a = getPEAngle(tadpole,danmaku.x,danmaku.y);
-        model.effects.push(new Effect(danmaku.effect,danmaku.x,danmaku.y,a.start,a.end));
+    function whenCollision_beam(tadpole,px,py) { //发生碰撞
+        var a = getPEAngle(tadpole,px,py);
+        model.effects.push(new Effect(danmaku.effect,px,py,a.start,a.end));
         if(!danmaku.penetrable) danmaku.die = true;
         tadpole.onHit(model,danmaku);
     }
@@ -240,20 +303,21 @@ var Danmaku = function(model,dSettings,parameter) {
     function checkCollision_beam(model) {
         switch(danmaku.shape) {
             case "line":{
-                collisionX = danmaku.x+0.5*danmaku.width*Math.cos(danmaku.angle)-0.5*danmaku.height*Math.sin(danmaku.angle);
-                collisionY = danmaku.y+0.5*danmaku.width*Math.sin(danmaku.angle)-0.5*danmaku.height*Math.cos(danmaku.angle);
-            } break;
-            case "circle":{
-                collisionX = danmaku.x;
-                collisionY = danmaku.y;
+                var lx1 = danmaku.x,
+                    ly1 = danmaku.y,
+                    lx2 = getEndPoint(danmaku.x,danmaku.y,danmaku.distance,danmaku.angle).x,
+                    ly2 = getEndPoint(danmaku.x,danmaku.y,danmaku.distance,danmaku.angle).y;
+
+                for (var i in model.tadpoles) 
+                    if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp)) {
+                        var cld = cldCircleLine_beam(model.tadpoles[i],lx1,ly1,lx2,ly2);
+                        if (cld.b) whenCollision_beam(model.tadpoles[i],cld.x,cld.y);
+                    }
             } break;
             default:{
-                collisionX = danmaku.x;
-                collisionY = danmaku.y;
             } break;
         } 
-        for (var i in model.tadpoles) 
-            if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp) && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
+        
         
     }
     
@@ -286,6 +350,13 @@ var Danmaku = function(model,dSettings,parameter) {
     }
     
     this.draw = function(context) {
+        context.save();
+        if (danmaku.blur>0) {
+            context.shadowOffsetX = 0;
+            context.shadowOffsetY = 0;
+            context.shadowBlur = danmaku.blur;
+            context.shadowColor = danmaku.color+danmaku.opacity*0.7+")";
+        }
         switch(danmaku.type) {
             case "bullet":{
                 switch(danmaku.shape) {
@@ -308,13 +379,14 @@ var Danmaku = function(model,dSettings,parameter) {
                     case "line":{
                         context.fillStyle = danmaku.color+danmaku.opacity+")";
                         /*激光穿透部分*/
-                        drawRect(danmaku.x,danmaku.y,danmaku.distance,danmaku.width,danmaku.angle,context);
+                        drawBeam(danmaku.x,danmaku.y,danmaku.distance,danmaku.width,danmaku.angle,context);
                     } break;
                     default:{} break;
                 }
             } break;
             default: {} break;
         }
+        context.restore();
     }
 
 }

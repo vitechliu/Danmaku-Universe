@@ -195,7 +195,7 @@ var standardWeapon = {
         speedAdd:1,
         damageAdd:1,
         num:1,
-        price:100,
+        price:4500,
         tadpoleFuncWeapon:function(tadpole) {
             var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
             var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
