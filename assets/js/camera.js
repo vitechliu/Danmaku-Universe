@@ -1,4 +1,4 @@
-//From Tadpole http://kedou.workerman.net/js/Camera.js
+
 
 var Camera = function(aCanvas, aContext, x, y) {
 	var camera = this;
@@ -47,7 +47,7 @@ var Camera = function(aCanvas, aContext, x, y) {
 		backgroundColor = backgroundColor > 360 ? 0 : backgroundColor;
 		
         
-        //下面的部分待看懂
+        //缓速对焦
 		var targetZoom = (model.camera.maxZoom + (model.camera.minZoom - model.camera.maxZoom) * Math.min(model.userTadpole.speed, model.userTadpole.speedMax) / model.userTadpole.speedMax);
 		model.camera.zoom += (targetZoom - model.camera.zoom) / 60;
 		

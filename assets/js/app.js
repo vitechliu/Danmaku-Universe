@@ -364,7 +364,7 @@ var App = function(aCanvas) {
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
         model.userTadpole.shield = new Shield(standardShield.standard_I,model.userTadpole);
-        model.userTadpole.equip(new Weapon(standardWeapon.standard_beam_I,model.userTadpole),1,model);
+        model.userTadpole.equip(new Weapon(standardWeapon.guard_beam_I,model.userTadpole),1,model);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
         //初始化UI

@@ -11,7 +11,7 @@ var standardEffect = {
     particles:{
         small:{
             type:"particles",
-            particleNum:12,
+            particleNum:8,
             fadeStartTime:15,
             fadeEndTime:90,
             startSpeed:0.7,
@@ -19,7 +19,7 @@ var standardEffect = {
         },
         medium: {
             type:"particles",
-            particleNum:15,
+            particleNum:12,
             fadeStartTime:25,
             fadeEndTime:150,
             startSpeed:0.9,
@@ -28,7 +28,7 @@ var standardEffect = {
         },
         large: {
             type:"particles",
-            particleNum:35,
+            particleNum:25,
             fadeStartTime:25,
             fadeEndTime:170,
             startSpeed:1.5,

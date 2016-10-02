@@ -13,6 +13,8 @@ guard 防御
 spiral 螺旋状
 fast 
 sniper 狙击型武器
+penetratable 穿透型(常指激光)
+
 
 子弹类型
 laser 匀速子弹武器
@@ -184,8 +186,9 @@ var standardWeapon = {
             };
         }
     },
-    standard_beam_I:{
-        name:"Standard Beam I",
+    //激光类-----------------------------------------------
+    beam_I:{
+        name:"Beam I",
         hasSprites:false,
         isDesigned:false,
         isRandomed:false,
@@ -193,7 +196,7 @@ var standardWeapon = {
         danmakuType:standardDanmaku.rec_beam_I,
         counterShield:false,
         speedAdd:1,
-        damageAdd:1,
+        damageAdd:1.2, //不可穿透型攻击较高
         num:1,
         price:4500,
         tadpoleFuncWeapon:function(tadpole) {
@@ -209,7 +212,60 @@ var standardWeapon = {
               x:x,y:y,a:a
             };
         }
+    },
+    penetrable_beam_I:{
+        name:"Penetrable Beam I",
+        hasSprites:false,
+        isDesigned:false,
+        isRandomed:false,
+        frequency:1,
+        danmakuType:standardDanmaku.rec_beam_III,
+        counterShield:false,
+        speedAdd:1,
+        damageAdd:1,
+        num:1,
+        price:7000,
+        tadpoleFuncWeapon:function(tadpole) {
+            var wx = tadpole.x+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.cos(tadpole.angle);
+            var wy = tadpole.y+(tadpole.size+tadpole.headDistance+tadpole.headSize)*Math.sin(tadpole.angle);
+            var wa = tadpole.angle;
+            return {
+              x:wx,y:wy,a:wa  
+            };
+        },
+        xyaFuncDanmaku:function(x,y,a,n) {
+            return {
+              x:x,y:y,a:a
+            };
+        }
+    },
+    guard_beam_I:{
+        name:"Guard Beam I",
+        hasSprites:false,
+        isDesigned:false,
+        isRandomed:false,
+        frequency:1,
+        danmakuType:standardDanmaku.rec_beam_IV,
+        counterShield:false,
+        speedAdd:1,
+        damageAdd:1,
+        num:4,
+        price:4500,
+        tadpoleFuncWeapon:function(tadpole) {
+            var wx = tadpole.x;
+            var wy = tadpole.y;
+            var wa = tadpole.angle;
+            return {
+              x:wx,y:wy,a:wa  
+            };
+        },
+        xyaFuncDanmaku:function(x,y,a,n) {
+            return {
+              x:x,y:y,a:a+n*Math.PI/2+Math.PI/4
+            };
+        }
     }
+    
 };
 
 var Weapon = function(wSettings,tadpole) {

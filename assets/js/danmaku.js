@@ -44,7 +44,7 @@ var standardDanmaku = {
         type:"bullet",
         shape:"rec",
         height:1.2,
-        width:5,
+        width:6,
         speedFunc:function(time) {
             return 8;
         },
@@ -98,6 +98,50 @@ var standardDanmaku = {
         damage:1,
         damageFurtherLower:false, //是否衰减
         penetrable:false, //穿透
+        maxLife:15,
+        color:"rgba(255,255,255,",
+        opacity:.7,
+        blur:3,
+        effect:standardEffect.particles.super_small
+    },
+    
+    rec_beam_II:{ //短激光
+        type:"beam",
+        shape:"line",
+        width:1,
+        distance:50,
+        damage:1,
+        damageFurtherLower:false, //是否衰减
+        penetrable:false, //穿透
+        maxLife:15,
+        color:"rgba(255,255,255,",
+        opacity:.7,
+        blur:3,
+        effect:standardEffect.particles.super_small
+    },
+    rec_beam_III:{ //激光 可穿透
+        type:"beam",
+        shape:"line",
+        width:1,
+        distance:500,
+        damage:1,
+        damageFurtherLower:false, //是否衰减
+        penetrable:true, //穿透
+        maxLife:15,
+        color:"rgba(255,255,255,",
+        opacity:.7,
+        blur:3,
+        effect:standardEffect.particles.super_small
+    },
+    
+    rec_beam_IV:{ //短激光 可穿透
+        type:"beam",
+        shape:"line",
+        width:1,
+        distance:50,
+        damage:1,
+        damageFurtherLower:false, //是否衰减
+        penetrable:true, //穿透
         maxLife:15,
         color:"rgba(255,255,255,",
         opacity:.7,
@@ -297,7 +341,7 @@ var Danmaku = function(model,dSettings,parameter) {
     //beam的碰撞检测--------------------------
     function whenCollision_beam(tadpole,px,py) { //发生碰撞
         var a = getPEAngle(tadpole,px,py);
-        model.effects.push(new Effect(danmaku.effect,px,py,a.start,a.end));
+        if (Math.random()<0.3) model.effects.push(new Effect(danmaku.effect,px,py,a.start,a.end));
         tadpole.onHit(model,danmaku);
     }
     

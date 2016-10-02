@@ -66,7 +66,7 @@ var Tadpole = function(tSettings) {
     this.weaponActivated[4] = true;
 
     //开放武器槽
-    this.weaponSlot = 2;
+    this.weaponSlot = 4;
 
     //主机转体速度 (>1) 越小越快
     this.turningSpeed = 5;
@@ -144,7 +144,16 @@ var Tadpole = function(tSettings) {
             var txt = "<strong>&nbsp;"+wp.name + "</strong><br>";
             $(query2_1).html(txt);
             txt = "<i class=\"fa fa-fw\"></i>" +wp.damageAdd*wp.danmakuType.damage+"<br>";
-            txt += "<i class=\"fa fa-fw\"></i>" +wp.frequency+"<br>";
+            switch(wp.danmakuType.type) {
+                case "bullet":{
+                    txt += "<i class=\"fa fa-fw\"></i>" +wp.frequency+"<br>";
+                } break;
+                case "beam":{
+                    txt += "<i class=\"fa fa-fw\"></i>" +wp.danmakuType.distance+"<br>";
+                } break;
+                default:{}
+            }
+            
             $(query2_2).html(txt);
             txt = "<i class=\"fa fa-fw\"></i>" +wp.price+"<br>";
             txt += "<i class=\"fa fa-fw\"></i>" +wp.danmakuType.type+"<br>";
