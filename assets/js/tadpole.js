@@ -388,7 +388,7 @@ var Tadpole = function(tSettings) {
         tadpole.timeSinceLastServerUpdate = 0;
         if (tadpole.shield!=null && tadpole.shield.status == 2) tadpole.shield.onHit(danmaku.damage);
         else tadpole.hp -= danmaku.damage;
-        if (tadpole.hp <= 0) {
+        if (tadpole.hp <= 0 && !tadpole.die) {
             tadpole.hp = 0;
             tadpole.die = true;
             danmaku.tadpole.expGain(Math.floor(tadpole.exp * 0.2),model);

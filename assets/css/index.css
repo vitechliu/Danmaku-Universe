@@ -105,7 +105,13 @@ strong {
 
 /*  UI 框架 */
 
-
+#loader {
+    position:absolute;
+    height:100%;
+    width:100%;
+    background-color:rgb(255,255,255);
+    z-index:10000;
+}
 #fps {
 	position: relative!important;
 	top: 5px;

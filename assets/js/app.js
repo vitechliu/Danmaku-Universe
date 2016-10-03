@@ -88,10 +88,8 @@ var App = function(aCanvas) {
         mouse.worldy = mvp.y;
         model.userTadpole.userUpdate(mouse.worldx, mouse.worldy,null);
         
-        //待弄懂
         if (model.userTadpole.age % 6 == 0 && model.userTadpole.changed > 1) {
             model.userTadpole.changed = 0;
-            //webSocketService.sendUpdate(model.userTadpole);
         }
 
         //更新镜头
@@ -364,12 +362,12 @@ var App = function(aCanvas) {
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
         model.userTadpole.shield = new Shield(standardShield.standard_I,model.userTadpole);
-        model.userTadpole.equip(new Weapon(standardWeapon.guard_beam_I,model.userTadpole),1,model);
+        model.userTadpole.equip(new Weapon(standardWeapon.beam_I,model.userTadpole),1,model);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
         //初始化UI
-        $("#weaponBox3").hide();
-        $("#weaponBox4").hide();
+        //$("#weaponBox3").hide();
+        //$("#weaponBox4").hide();
 
         //UI完善主机武器1
         //添加水粒子
@@ -422,7 +420,7 @@ var App = function(aCanvas) {
         st.standardAcc = 0.25;
         st.friction =0.05;
         
-        model.addEnemy(st,standardWeapon.laser_I,"testGuard");
+        model.addEnemy(st,standardWeapon.short_beam_I,"testGuard");
         //----------------
         //model全局判断附近敌人数量
         model.getEnemyNum = function(self,radius) {

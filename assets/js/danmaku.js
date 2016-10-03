@@ -40,7 +40,7 @@ var standardDanmaku = {
         penetrable:false,
         damage:50
     },
-    rec_bullet_II:{
+    rec_bullet_II:{ //较长的rec1
         type:"bullet",
         shape:"rec",
         height:1.2,
@@ -72,6 +72,23 @@ var standardDanmaku = {
         maxLife:1000,
         penetrable:false,
         damage:50
+    },
+    circle_bullet_II:{ //大型圆子弹 
+        type:"bullet",
+        shape:"circle",
+        size:3,
+        speedFunc:function(time) {
+            return 8;
+        },
+        angleFunc:function(defaultAngle,time) {
+            return defaultAngle;
+        },
+        color:"rgba(255,255,255,",
+        opacity:0.9,
+        maxLife:1000,
+        penetrable:false,
+        damage:50,
+        blur:2
     },
     slowMine_circle_bullet_I:{ //防御型弹幕 会漂浮不动
         type:"bullet",
@@ -335,7 +352,7 @@ var Danmaku = function(model,dSettings,parameter) {
             } break;
         } 
         for (var i in model.tadpoles) 
-            if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp) && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
+            if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp) && !model.tadpoles[i].die && getDistance(collisionX,collisionY,model.tadpoles[i].x,model.tadpoles[i].y)<=model.tadpoles[i].size) whenCollision(model.tadpoles[i]);  
         
     }
     //beam的碰撞检测--------------------------
@@ -358,7 +375,7 @@ var Danmaku = function(model,dSettings,parameter) {
                     ly2 = getEndPoint(danmaku.x,danmaku.y,danmaku.distance,danmaku.angle).y;
 
                 for (var i in model.tadpoles) 
-                    if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp)) {
+                    if (model.tadpoles[i]!=danmaku.tadpole && !cj(model.tadpoles[i].camp,danmaku.camp && !model.tadpoles[i].die)) {
                         var cld = cldCircleLine_beam(model.tadpoles[i],lx1,ly1,lx2,ly2);
                         if (cld.b) {
                             whenCollision_beam(model.tadpoles[i],cld.x,cld.y);
