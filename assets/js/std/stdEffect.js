@@ -108,8 +108,13 @@ var standardEffect = {
         }
     },
     show:{
-        txt_levelup:{
-            type:"show"
+        level_up:{
+            type:"show",
+            text:"level up!",
+            fontSize:10,
+            time:120,
+            speed:0.2,
+            color:"rgba(255,255,100,"
         }
     }
 }

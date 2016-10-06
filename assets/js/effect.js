@@ -89,6 +89,19 @@ var Effect  = function (eSettings,x,y,startAngle=0,endAngle=Math.PI*2) {
             //Init
             
         } break;
+        case "show": {
+            this.fontSize = eSettings.fontSize || 8;
+            this.font = this.fontSize + "px '微软雅黑',微软雅黑,'Microsoft YaHei','Microsoft Yahei', arial, sans-serif";
+            this.color = eSettings.color || "rgba(255,255,255,";
+            this.opacity = 1;
+            this.text = eSettings.text || "";
+            this.life = 0;
+            this.time = eSettings.time || 120;
+            this.x = x || 0;
+            this.y = y || 0;
+            this.speed = eSettings.speed || 2;
+            this.blur = eSettings.blur || 0;
+        } break;
         default: {} break;
     }
     
@@ -114,6 +127,12 @@ var Effect  = function (eSettings,x,y,startAngle=0,endAngle=Math.PI*2) {
                 effect.radius = 0.5*(effect.startRadius-effect.endRadius)*(Math.cos(effect.life*Math.PI/effect.time)-1)+effect.startRadius;
                 if (effect.fade) effect.opacity = 0.5*Math.cos(effect.life*Math.PI/effect.time)+0.5; //如果褪色则降低透明度
                 if (effect.fadeLine) effect.line = effect.lineWidth*(0.5*Math.cos(effect.life*Math.PI/effect.time)+0.5); //如果褪色则降低透明度
+                if (effect.life == effect.time) effect.die = true;
+            } break;
+            case "show": {
+                effect.life++;
+                effect.y -= effect.speed;
+                effect.opacity = 0.5*Math.cos(effect.life*Math.PI/effect.time)+0.5;
                 if (effect.life == effect.time) effect.die = true;
             } break;
             default: {} break;
@@ -153,6 +172,20 @@ var Effect  = function (eSettings,x,y,startAngle=0,endAngle=Math.PI*2) {
                 
                 context.restore();
             } break;
+            case "show": {
+                context.save();
+                
+                context.shadowOffsetX = 0;
+                context.shadowOffsetY = 0;
+                context.shadowBlur    = effect.blur;
+                context.shadowColor = effect.color+effect.opacity*0.7+')';
+                context.fillStyle = effect.color+effect.opacity+')';
+                context.font = effect.font;
+                var width = context.measureText(effect.text).width;
+                context.fillText(effect.text,effect.x-width/2,effect.y);
+                
+                context.restore();
+            }
             default: {} break;
         }
     }

@@ -401,6 +401,7 @@ var Tadpole = function(tSettings) {
         function ef(x,y) {
             model.effects.push(new Effect(standardEffect.ring.large_out,x,y));
             model.effects.push(new Effect(standardEffect.ring.small_out,x,y));
+            model.effects.push(new Effect(standardEffect.show.level_up,x,y));
         }
         function ef2(x,y){
             model.effects.push(new Effect(standardEffect.particles.medium,x,y,0,Math.PI*2));
