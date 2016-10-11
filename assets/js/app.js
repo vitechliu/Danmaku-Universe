@@ -91,6 +91,11 @@ var App = function(aCanvas) {
         if (model.userTadpole.age % 6 == 0 && model.userTadpole.changed > 1) {
             model.userTadpole.changed = 0;
         }
+        
+        //找出最近物品
+        if (model.items.length>0) {
+            
+        }
 
         //更新镜头
         model.camera.update(model);
