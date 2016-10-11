@@ -120,6 +120,12 @@ var App = function(aCanvas) {
             if(model.effects[i].die) model.effects.splice(i,1);
         }
         
+         //更新物品
+        for (var i = model.items.length-1;i>=0;i--) {
+            model.items[i].update();
+            if(model.items[i].die) model.items.splice(i,1);
+        }
+        
         //更新水粒子
         for (i in model.decoStars) {
             model.decoStars[i].update(model.camera.getOuterBounds(), model.camera.zoom);
@@ -145,6 +151,11 @@ var App = function(aCanvas) {
         //绘制特效
         for (i in model.effects) {
             model.effects[i].draw(context);
+        }
+        
+        //绘制物品
+        for (i in model.items) {
+            model.items[i].draw(context);
         }
 
         //绘制主机
@@ -378,7 +389,10 @@ var App = function(aCanvas) {
         
         //添加特效
         model.effects = [];
-            
+        
+        //添加物品
+        model.items = [];
+        
         //镜头初始化
         model.camera = new Camera(canvas, context, model.userTadpole.x, model.userTadpole.y);
         
