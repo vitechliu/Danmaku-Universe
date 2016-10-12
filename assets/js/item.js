@@ -1,5 +1,6 @@
 var Item = function(iSettings,detail) {
     var item = this;
+
     this.type = iSettings.type;
     
     this.x = detail.x || 0;
@@ -15,9 +16,13 @@ var Item = function(iSettings,detail) {
     this.fadeLife = this.maxLife > 100 ? this.maxLife - 100 : -1; 
     this.icon = iSettings.icon || null;
     this.size = iSettings.size || 10;
+    this.useFunc = iSettings.useFunc;
+    
     if (this.icon!= null) {
-        this.image = new image();
-        this.image.src = "game/item/icon"+this.icon;
+        this.image = new Image();
+        this.image.crossOrigin = '';
+        this.image.src = "game/item/icon/"+this.icon;
+        
     }
     this.die = false;
     this.insight = false;
@@ -33,61 +38,71 @@ var Item = function(iSettings,detail) {
         return 0.5*(Math.cos(Math.PI*(life-tStart)/(tEnd-tStart))+1)+1.5;
     }
     
-    this.update = function() {
+    this.use = function(tadpole,model) {
+        item.die = item.useFunc(tadpole,detail,model);
+    }
+    
+    this.update = function(model) {
         item.life++;
         if (item.life == item.maxLife) item.die = true;
-        item.opacity = Math.max(Math.min(1,item.life - item.fadeLife),0);
+        item.opacity = Math.max(Math.min(1,(item.fadeLife - item.life)/100),0);
         item.x += item.speed*Math.cos(item.speedAngle);
         item.y += item.speed*Math.sin(item.speedAngle);
         item.speed = (item.speed < item.friction) ? 0 : item.speed - item.friction;
         
+        if (item == model.insightItem) item.insight = true;
+        else item.insight = false;
+        
         if (item.insight) item.cursorStatus+= item.cursorStatus < 100 ? 1 : 0;
         else item.cursorStatus-= item.cursorStatus > 0 ? 1 : 0;
+        
     }
     
     this.draw = function(context) {
         context.save();
         context.fillStyle = item.color + item.opacity*0.1 + ")";
         context.strokeStyle = item.color + item.opacity + ")";
-        switch(this.shape) {
+        switch(item.shape) {
             case "circle":{
-                context.beginPath();
-                context.arc(item.x, item.y, item.radius, 0, Math.PI * 2, true);
-                context.closePath();
-                context.fill();
+                context.drawImage(item.image,item.x-item.radius,item.y-item.radius,item.radius*2,item.radius*2);
+                var imgData = context.getImageData(item.x-item.radius,item.y-item.radius,item.radius*2,item.radius*2);
+                for (var i=0;i<imgData.data.length;i+=4) {
+                    imgData.data[i+3]=Math.floor(item.opacity*255);
+                }
+                context.putImageData(imgData,item.x-item.radius,item.y-item.radius);
                 
+                context.beginPath();
                 context.arc(item.x, item.y, item.radius, 0, Math.PI * 2, true);
                 context.stroke();
                 
-                context.drawImage(item.image,item.x-item.radius,item.y-item.radius,item.radius*2,item.radius*2);
+                
             } break;
             default: {} break;
         }
+        
         if (item.cursorStatus>0) {
             context.strokeStyle = "rgba(255,255,255," + (item.cursorStatus/100).toFixed(2) + ")";
             var dis = setCursorDis(0,item.cursorStatus/100,1)*item.size;
             var length = 0.5*item.size;
+            context.beginPath();
             
             context.moveTo(item.x-dis+length,item.y-dis);
             context.lineTo(item.x-dis,item.y-dis);
             context.lineTo(item.x-dis,item.y-dis+length);
-            context.stroke();
             
             context.moveTo(item.x+dis-length,item.y-dis);
             context.lineTo(item.x+dis,item.y-dis);
             context.lineTo(item.x+dis,item.y-dis+length);
-            context.stroke();
             
             context.moveTo(item.x-dis+length,item.y+dis);
             context.lineTo(item.x-dis,item.y+dis);
             context.lineTo(item.x-dis,item.y+dis-length);
-            context.stroke();
             
             context.moveTo(item.x+dis-length,item.y+dis);
             context.lineTo(item.x+dis,item.y+dis);
             context.lineTo(item.x+dis,item.y+dis-length);
-            context.stroke();
         }
+        context.stroke();
         context.restore();
     }
 }

@@ -86,6 +86,8 @@ var App = function(aCanvas) {
         var mvp = getMouseWorldPosition();
         mouse.worldx = mvp.x;
         mouse.worldy = mvp.y;
+        model.mousex = mvp.x;
+        model.mousey = mvp.y;
         model.userTadpole.userUpdate(mouse.worldx, mouse.worldy,null);
         
         if (model.userTadpole.age % 6 == 0 && model.userTadpole.changed > 1) {
@@ -93,9 +95,16 @@ var App = function(aCanvas) {
         }
         
         //找出最近物品
+        var hasInsight = false;
         if (model.items.length>0) {
-            
+            for (var i = model.items.length-1;i>=0;i--) 
+                if (getDistance(model.items[i].x,model.items[i].y,mvp.x,mvp.y)<model.items[i].size*2) {
+                    hasInsight = true;
+                    if (model.insightItem == null) model.insightItem = model.items[i];
+                    else if (getDistance(model.items[i].x,model.items[i].y,mvp.x,mvp.y)<getDistance(model.insightItem.x,model.insightItem.y,mvp.x,mvp.y)) model.insightItem = model.items[i];
+                }             
         }
+        if (!hasInsight) model.insightItem = null; 
 
         //更新镜头
         model.camera.update(model);
@@ -127,7 +136,7 @@ var App = function(aCanvas) {
         
          //更新物品
         for (var i = model.items.length-1;i>=0;i--) {
-            model.items[i].update();
+            model.items[i].update(model);
             if(model.items[i].die) model.items.splice(i,1);
         }
         
@@ -280,6 +289,9 @@ var App = function(aCanvas) {
             $("#infoBox").mCustomScrollbar("scrollTo","bottom",{scrollInertia:1000});
             $("#chat").focus();
             e.preventDefault();
+        } else if (e.keyCode == keys.space) {
+            //使用道具
+            if (model.insightItem!=null) model.insightItem.use(model.userTadpole,model);
         }
     };
 
@@ -397,6 +409,7 @@ var App = function(aCanvas) {
         
         //添加物品
         model.items = [];
+        model.insightItem = null;
         
         //镜头初始化
         model.camera = new Camera(canvas, context, model.userTadpole.x, model.userTadpole.y);
@@ -416,7 +429,12 @@ var App = function(aCanvas) {
         model.getDistance = function(x1,y1,x2,y2) {
             return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
         }
+        //添加道具-------------
+        model.addItem = function(settings,detail) {
+            model.items.push(new Item(settings,detail));
+        }
         
+        model.addItem(standardItem.item_weapon,{x:0,y:0});
         //添加敌人函数(测试)
         
         model.addEnemy = function(settings,wp,name) {
@@ -483,6 +501,7 @@ var App = function(aCanvas) {
                     follow = model.tadpoles[i];
             return follow;
         };
+        
         
         $(function(){
             

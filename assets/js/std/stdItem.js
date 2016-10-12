@@ -5,8 +5,13 @@ var standardItem = {
         radius:10,
         icon:"weapon.png",
         color:"rgba(255,255,255,",
-        useFunc : function(tadpole,detail) {
-        
+        useFunc : function(tadpole,detail,model) { //返回true或false决定是否die
+            if(tadpole.nextSlot!=0) {
+                tadpole.equip(new Weapon(detail.weapon,tadpole),tadpole.nextSlot,model);
+                return false;
+            } else {
+                return true;
+            }
         },
     }
 }

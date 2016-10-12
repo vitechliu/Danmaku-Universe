@@ -35,6 +35,7 @@ var Weapon = function(wSettings,tadpole) {
     this.x = 0; //update中更新炮口x,y
     this.y = 0;
     this.angle = 0;
+    this.settings = wSettings;
     
     this.tadpole = tadpole; //tadpoleID
     this.danmakuType = wSettings.danmakuType;

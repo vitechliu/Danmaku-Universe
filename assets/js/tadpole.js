@@ -67,6 +67,7 @@ var Tadpole = function(tSettings) {
 
     //开放武器槽
     this.weaponSlot = 4;
+    this.nextSlot = 2;
 
     //主机转体速度 (>1) 越小越快
     this.turningSpeed = 5;
@@ -243,6 +244,15 @@ var Tadpole = function(tSettings) {
         //更新武器
         for (var i = 1; i < tadpole.weaponSlot + 1; i++) {
             if (tadpole.weapon[i] != null) tadpole.weapon[i].update(tadpole, model);
+        }
+        
+        //更新下一个武器槽
+        tadpole.nextSlot = 0;
+        for (var i=1;i<=tadpole.weaponSlot;i++) {
+            if (tadpole.weapon[i] == null) {
+                tadpole.nextSlot = i;
+                break;
+            }
         }
         
         //更新护盾
