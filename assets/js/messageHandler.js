@@ -98,6 +98,7 @@ var MessageHandler = function(model) {
             var AIadd = standardAI[AIinput];
             for (var i=0;i<num;i++) {
                 var rs = {};
+                rs.name = "testObject";
                 rs.x = Math.random()*300+model.userTadpole.x-150;
                 rs.y = Math.random()*300+model.userTadpole.y-150;
                 rs.camp = camp[4];
@@ -105,7 +106,7 @@ var MessageHandler = function(model) {
                 rs.standardAcc = 0.25;
                 rs.friction =0.05
                 rs.AI = new AI(AIadd);
-                model.addEnemy(rs,standardWeapon.standard_laser_I,"testObject");
+                model.addEnemy(rs,standardWeapon.standard_laser_I);
             }
         } catch(e) {
             console.log(e);

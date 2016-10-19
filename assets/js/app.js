@@ -69,8 +69,7 @@ var App = function(aCanvas) {
         statusText += "<i class=\"fa fa-fw\"></i>Position:  ("+model.userTadpole.x.toFixed(1)+",";
         statusText += model.userTadpole.y.toFixed(1)+")<br>";
         statusText += "<i class=\"fa fa-fw\"></i>Speed: "+model.userTadpole.speed.toFixed(1)+"<br>";
-        statusText += "<i class=\"fa fa-fw\"></i>Speed: "+model.userTadpole.shield.status+"<br>";
-        statusText += "<i class=\"fa fa-fw\"></i>Speed: "+model.userTadpole.shield.hp+"<br>";
+        statusText += "<i class=\"fa fa-fw\"></i>Shield: "+model.userTadpole.shield.hp+"<br>";
         
         $("#selfStatusText").html(statusText);
         
@@ -104,6 +103,7 @@ var App = function(aCanvas) {
                     else if (getDistance(model.items[i].x,model.items[i].y,mvp.x,mvp.y)<getDistance(model.insightItem.x,model.insightItem.y,mvp.x,mvp.y)) model.insightItem = model.items[i];
                 }             
         }
+        console.log(model.items.length);
         if (!hasInsight) model.insightItem = null; 
 
         //更新镜头
@@ -129,7 +129,7 @@ var App = function(aCanvas) {
         }
         
         //更新特效
-        for (var i = model.effects.length-1;i>=0;i--) {
+        for (var i = model.effects.length-1;i>=0;i--) {          
             model.effects[i].update();
             if(model.effects[i].die) model.effects.splice(i,1);
         }
@@ -147,7 +147,9 @@ var App = function(aCanvas) {
         
         //更新弹出消息
         model.noticeHandler.update();
-
+        
+        //更新敌人生成器
+        model.enemyGenerator.update(model,app.time);
         //武器在tadpole.update中更新
     };
 
@@ -258,7 +260,6 @@ var App = function(aCanvas) {
         if (model.userTadpole && e.which == 1) {
             model.userTadpole.cease();
         }
-        model.userTadpole.expGain(20,model);
     };
 
     //监控鼠标位置
@@ -390,7 +391,7 @@ var App = function(aCanvas) {
         model.userTadpole = new Tadpole(userT);
         model.userTadpole.id = -1;
         model.userTadpole.shield = new Shield(standardShield.standard_I,model.userTadpole);
-        model.userTadpole.equip(new Weapon(standardWeapon.beam_I,model.userTadpole),1,model);
+        model.userTadpole.equip(new Weapon(standardWeapon.standard_laser_I,model.userTadpole),1,model);
         model.tadpoles[model.userTadpole.id] = model.userTadpole;
         
         //初始化UI
@@ -400,7 +401,7 @@ var App = function(aCanvas) {
         //UI完善主机武器1
         //添加水粒子
         model.decoStars = [];
-        for (var i = 0; i < 400; i++) {
+        for (var i = 0; i < 200; i++) {
             model.decoStars.push(new DecoStars());
         }
         
@@ -423,8 +424,13 @@ var App = function(aCanvas) {
         //弹出消息处理
         model.noticeHandler = new NoticeHandler(model);
         
-        model.noticeHandler.pushNotice("asdasd",500);
-        model.noticeHandler.pushNotice("123",500);
+        
+        
+        model.noticeHandler.pushNotice("当前游戏为测试版161019",500);
+        model.noticeHandler.pushNotice("因性能原因，游戏已转Unity平台开发，详情请关注作者主页。",500);
+        
+        //敌人添加系统
+        model.enemyGenerator = new EnemyGenerator();
         
         model.getDistance = function(x1,y1,x2,y2) {
             return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
@@ -434,17 +440,17 @@ var App = function(aCanvas) {
             model.items.push(new Item(settings,detail));
         }
         
-        model.addItem(standardItem.item_weapon,{x:0,y:0});
+        //model.addItem(standardItem.item_weapon,{x:0,y:0,weapon:standardWeapon.beam_I});
         //添加敌人函数(测试)
         
-        model.addEnemy = function(settings,wp,name) {
+        model.addEnemy = function(settings,wp) {
             var t = new Tadpole(settings);
             if (wp!=null) t.equip(new Weapon(wp,t),1,model);
             model.tadpoles.push(t);
             model.arrows[$.inArray(t,model.tadpoles)] = new Arrow(t, model.camera);
         }
         
-        
+        /*
         //----------------
         var st = {};
         st.x = 0;
@@ -457,8 +463,10 @@ var App = function(aCanvas) {
         st.standardAcc = 0.25;
         st.friction =0.05;
         
-        model.addEnemy(st,standardWeapon.short_beam_I,"testGuard");
+        model.addEnemy(st,standardWeapon.short_beam_I);
         //----------------
+        
+        */
         //model全局判断附近敌人数量
         model.getEnemyNum = function(self,radius) {
             

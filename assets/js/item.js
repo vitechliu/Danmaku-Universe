@@ -20,7 +20,6 @@ var Item = function(iSettings,detail) {
     
     if (this.icon!= null) {
         this.image = new Image();
-        this.image.crossOrigin = '';
         this.image.src = "game/item/icon/"+this.icon;
         
     }
@@ -65,12 +64,7 @@ var Item = function(iSettings,detail) {
         switch(item.shape) {
             case "circle":{
                 context.drawImage(item.image,item.x-item.radius,item.y-item.radius,item.radius*2,item.radius*2);
-                var imgData = context.getImageData(item.x-item.radius,item.y-item.radius,item.radius*2,item.radius*2);
-                for (var i=0;i<imgData.data.length;i+=4) {
-                    imgData.data[i+3]=Math.floor(item.opacity*255);
-                }
-                context.putImageData(imgData,item.x-item.radius,item.y-item.radius);
-                
+
                 context.beginPath();
                 context.arc(item.x, item.y, item.radius, 0, Math.PI * 2, true);
                 context.stroke();

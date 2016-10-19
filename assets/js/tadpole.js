@@ -267,6 +267,9 @@ var Tadpole = function(tSettings) {
         //更新主机判定体积
         if (tadpole.shield!=null && tadpole.shield.status == 2) tadpole.size = tadpole.shield.size;
         else tadpole.size = tSettings.size || 6;
+        
+        //太远的AI删除
+        if(tadpole.AI != null && getDistance(tadpole.x,tadpole.y,model.userTadpole.x,model.userTadpole.y)>tadpole.clearDistance) tadpole.die = true;
     };
 
     //如果认证了,点击出twitter地址
@@ -388,6 +391,12 @@ var Tadpole = function(tSettings) {
 
     this.onDeath = function(model) {
         model.effects.push(new Effect(standardEffect.particles.large, tadpole.x, tadpole.y, 0, Math.PI * 2));
+        for (var i = 1; i < tadpole.weaponSlot + 1; i++) 
+            //爆武器
+            if (tadpole.weapon[i] != null && Math.random()<0.05) {
+                var wp = tadpole.weapon[i].settings;
+                model.addItem(standardItem.item_weapon,{x:tadpole.x,y:tadpole.y,weapon:wp});
+            }
     }
 
     this.onHit = function(model,danmaku) {
